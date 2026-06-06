@@ -1,0 +1,825 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --azul-principal: #3933B2;
+    --azul-oscuro: #2e2994;
+    --azul-claro: #e8e7f5;
+    --verde-salud: #20C326;
+    --verde-oscuro: #1aa31f;
+    --gris-claro: #F2F2F2;
+    --gris-medio: #cccccc;
+    --gris-oscuro: #333333;
+    --blanco: #FFFFFF;
+    --rojo-error: #dc2626;
+    --rojo-error-bg: #fef2f2;
+    --rojo-error-borde: #fca5a5;
+    
+    --font-titulo: 'Poppins', sans-serif;
+    --font-cuerpo: 'Open Sans', sans-serif;
+    
+    --texto-base: 1rem;
+    --texto-grande: 1.125rem;
+    --texto-pequeno: 0.875rem;
+    
+    --espaciado-xs: 0.5rem;
+    --espaciado-sm: 0.75rem;
+    --espaciado-md: 1rem;
+    --espaciado-lg: 1.25rem;
+    --espaciado-xl: 1.5rem;
+    --espaciado-xxl: 2rem;
+    
+    --radio-sm: 8px;
+    --radio-md: 12px;
+    --radio-lg: 16px;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    font-family: var(--font-cuerpo);
+    font-size: var(--texto-base);
+    color: var(--gris-oscuro);
+    background-color: var(--gris-claro);
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--espaciado-md);
+}
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+
+.register-container {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.register-card {
+    background: var(--blanco);
+    border-radius: var(--radio-lg);
+    padding: var(--espaciado-xl) var(--espaciado-xl);
+    box-shadow: 0 4px 24px rgba(57, 51, 178, 0.08);
+    border: 1px solid rgba(57, 51, 178, 0.06);
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.header-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--espaciado-lg);
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--azul-principal);
+    font-family: var(--font-titulo);
+    font-size: var(--texto-base);
+    font-weight: 600;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: var(--radio-sm);
+    transition: all 0.2s ease;
+}
+
+.back-link:hover {
+    background: var(--azul-claro);
+    color: var(--azul-oscuro);
+}
+
+/* ============================================
+   LOGO PEQUEÑO
+   ============================================ */
+.logo-small {
+    width: 36px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-small img {
+    width: 190%;    
+    max-width: none; 
+    height: auto;
+    display: block;
+    object-fit: contain;
+}
+
+/* ============================================
+   TÍTULO
+   ============================================ */
+
+.title-section {
+    text-align: center;
+    margin-bottom: var(--espaciado-lg);
+}
+
+.form-title {
+    font-family: var(--font-titulo);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gris-oscuro);
+    margin-bottom: 4px;
+}
+
+.form-subtitle {
+    font-family: var(--font-cuerpo);
+    font-size: var(--texto-base);
+    color: #888888;
+}
+
+/* ============================================
+   INDICADOR DE PASOS
+   ============================================ */
+
+.steps-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: var(--espaciado-lg);
+    padding: 0 var(--espaciado-sm);
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    max-width: 90px;
+}
+
+.step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--gris-claro);
+    color: #888888;
+    font-family: var(--font-titulo);
+    font-weight: 700;
+    font-size: var(--texto-pequeno);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    color: #888888;
+    font-family: var(--font-cuerpo);
+    text-align: center;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    line-height: 1.3;
+}
+
+.step.active .step-circle {
+    background: var(--azul-principal);
+    color: var(--blanco);
+    border-color: var(--azul-principal);
+    box-shadow: 0 0 0 3px rgba(57, 51, 178, 0.15);
+}
+
+.step.active .step-label {
+    color: var(--azul-principal);
+    font-weight: 700;
+}
+
+.step.completed .step-circle {
+    background: var(--verde-salud);
+    color: var(--blanco);
+    border-color: var(--verde-salud);
+}
+
+.step.completed .step-label {
+    color: var(--verde-salud);
+}
+
+.step-connector {
+    flex: 1;
+    height: 2px;
+    background: var(--gris-claro);
+    max-width: 30px;
+    margin-top: -16px;
+    border-radius: 2px;
+    transition: background 0.3s ease;
+}
+
+.step.completed + .step-connector {
+    background: var(--verde-salud);
+}
+
+/* ============================================
+   FORMULARIO POR PASOS
+   ============================================ */
+
+.register-form {
+    position: relative;
+}
+
+.form-step {
+    border: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--espaciado-lg);
+    animation: fadeIn 0.3s ease;
+}
+
+.form-step.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ============================================
+   INPUTS
+   ============================================ */
+
+.input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--espaciado-md);
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input-label {
+    font-family: var(--font-titulo);
+    font-size: var(--texto-base);
+    font-weight: 600;
+    color: var(--gris-oscuro);
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    color: var(--azul-principal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.form-input {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px 0 2.75rem;
+    font-family: var(--font-cuerpo);
+    font-size: var(--texto-base);
+    color: var(--gris-oscuro);
+    background: var(--blanco);
+    border: 1.5px solid #e0e0e0;
+    border-radius: var(--radio-md);
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.form-input::placeholder {
+    color: #aaaaaa;
+}
+
+.form-input:hover {
+    border-color: var(--azul-principal);
+}
+
+.form-input:focus {
+    border-color: var(--azul-principal);
+    box-shadow: 0 0 0 3px rgba(57, 51, 178, 0.1);
+}
+
+/* Estado de error en input */
+.form-input.input-error {
+    border-color: var(--rojo-error);
+    background-color: var(--rojo-error-bg);
+}
+
+.form-input.input-error:focus {
+    border-color: var(--rojo-error);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* Select personalizado */
+.form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 2.5rem;
+    cursor: pointer;
+}
+
+.select-arrow {
+    position: absolute;
+    right: 14px;
+    color: var(--azul-principal);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+}
+
+/* Toggle password */
+.toggle-password {
+    position: absolute;
+    right: 14px;
+    background: none;
+    border: none;
+    color: #aaaaaa;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radio-sm);
+    transition: all 0.2s ease;
+}
+
+.toggle-password:hover {
+    color: var(--azul-principal);
+    background: rgba(57, 51, 178, 0.06);
+}
+
+.help-text {
+    font-size: var(--texto-pequeno);
+    color: #999999;
+    margin-top: 2px;
+}
+
+/* ============================================
+   MENSAJES DE ERROR
+   ============================================ */
+
+.error-message {
+    display: none;
+    font-size: 0.8125rem;
+    color: var(--rojo-error);
+    font-family: var(--font-cuerpo);
+    font-weight: 600;
+    margin-top: 2px;
+    padding-left: 4px;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   RADIO BUTTONS (Género)
+   ============================================ */
+
+.radio-group {
+    display: flex;
+    gap: var(--espaciado-sm);
+    flex-wrap: wrap;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 10px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: var(--radio-md);
+    transition: all 0.2s ease;
+    flex: 1;
+    min-width: 90px;
+    justify-content: center;
+}
+
+.radio-option:hover {
+    border-color: var(--azul-principal);
+}
+
+.radio-input {
+    position: absolute;
+    opacity: 0;
+}
+
+.radio-custom {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #cccccc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.radio-custom::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--verde-salud);
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.2s ease;
+}
+
+.radio-input:checked + .radio-custom {
+    border-color: var(--verde-salud);
+}
+
+.radio-input:checked + .radio-custom::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.radio-input:focus + .radio-custom {
+    box-shadow: 0 0 0 3px rgba(32, 195, 38, 0.2);
+}
+
+.radio-label {
+    font-family: var(--font-cuerpo);
+    font-size: var(--texto-pequeno);
+    color: var(--gris-oscuro);
+    user-select: none;
+}
+
+.radio-input:checked ~ .radio-label {
+    color: var(--verde-salud);
+    font-weight: 600;
+}
+
+/* ============================================
+   INDICADOR FORTALEZA CONTRASEÑA
+   ============================================ */
+
+.password-strength {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.strength-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--gris-claro);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.strength-text {
+    font-size: var(--texto-pequeno);
+    font-weight: 600;
+    color: #888888;
+}
+
+/* ============================================
+   CHECKBOX (Términos)
+   ============================================ */
+
+.terms-section {
+    padding: var(--espaciado-sm) var(--espaciado-md);
+    background: var(--gris-claro);
+    border-radius: var(--radio-md);
+}
+
+.checkbox-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.checkbox-input {
+    position: absolute;
+    opacity: 0;
+}
+
+.checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cccccc;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.checkbox-custom::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background: var(--verde-salud);
+    border-radius: 2px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s ease;
+}
+
+.checkbox-input:checked + .checkbox-custom {
+    border-color: var(--verde-salud);
+}
+
+.checkbox-input:checked + .checkbox-custom::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.checkbox-input:focus + .checkbox-custom {
+    box-shadow: 0 0 0 3px rgba(32, 195, 38, 0.2);
+}
+
+.checkbox-label {
+    font-family: var(--font-cuerpo);
+    font-size: var(--texto-pequeno);
+    color: var(--gris-oscuro);
+    line-height: 1.5;
+}
+
+.terms-link {
+    color: var(--azul-principal);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.terms-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* ============================================
+   BOTONES
+   ============================================ */
+
+.btn-next,
+.btn-back,
+.btn-register {
+    font-family: var(--font-titulo);
+    font-size: var(--texto-grande);
+    font-weight: 600;
+    border-radius: var(--radio-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    border: none;
+    height: 44px;
+    padding: 0 var(--espaciado-lg);
+}
+
+.btn-next {
+    width: 100%;
+    background: var(--azul-principal);
+    color: var(--blanco);
+}
+
+.btn-next:hover {
+    background: var(--azul-oscuro);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(57, 51, 178, 0.25);
+}
+
+.btn-back {
+    background: transparent;
+    color: var(--gris-oscuro);
+    border: 1.5px solid #e0e0e0;
+    flex: 1;
+}
+
+.btn-back:hover {
+    border-color: var(--azul-principal);
+    color: var(--azul-principal);
+    background: var(--azul-claro);
+}
+
+.btn-register {
+    background: var(--verde-salud);
+    color: var(--blanco);
+    flex: 2;
+}
+
+.btn-register:hover {
+    background: var(--verde-oscuro);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(32, 195, 38, 0.25);
+}
+
+.button-row {
+    display: flex;
+    gap: var(--espaciado-sm);
+    margin-top: var(--espaciado-sm);
+}
+
+/* ============================================
+   TOAST NOTIFICATION - ICONOS LIMPIOS CON CSS
+   ============================================ */
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-family: var(--font-titulo);
+    font-size: var(--texto-pequeno);
+    font-weight: 600;
+    color: var(--blanco);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    transform: translateX(400px);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    min-width: 320px;
+    max-width: 450px;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.hidden {
+    display: none;
+}
+
+.toast-success {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    border-left: 4px solid #22c55e;
+}
+
+.toast-error {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    border-left: 4px solid #ef4444;
+}
+
+.toast-warning {
+    background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%);
+    border-left: 4px solid #eab308;
+}
+
+.toast-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Iconos con CSS puro - sin emojis */
+.toast-success .toast-icon::before {
+    content: "\2713";
+    color: var(--blanco);
+}
+
+.toast-error .toast-icon::before {
+    content: "\2715";
+    color: var(--blanco);
+}
+
+.toast-warning .toast-icon::before {
+    content: "\0021";
+    color: var(--blanco);
+}
+
+/* ============================================
+   FOOTER — CENTRADO
+   ============================================ */
+
+.register-footer {
+    text-align: center;
+    margin-top: var(--espaciado-xl);
+    padding-top: var(--espaciado-lg);
+}
+
+.register-footer p {
+    font-size: var(--texto-base);
+    color: #666666;
+    text-align: center;
+}
+
+.login-link {
+    color: var(--azul-principal);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.login-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 480px) {
+    .register-card {
+        padding: var(--espaciado-lg) var(--espaciado-md);
+    }
+    
+    .input-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .steps-indicator {
+        padding: 0;
+    }
+    
+    .step-label {
+        font-size: 0.6875rem;
+    }
+    
+    .radio-group {
+        flex-direction: column;
+    }
+    
+    .button-row {
+        flex-direction: column;
+    }
+    
+    .btn-back,
+    .btn-register {
+        width: 100%;
+    }
+}
+
+/* ============================================
+   ACCESIBILIDAD
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
