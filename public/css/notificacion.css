@@ -1,0 +1,191 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+    background: #d4d4d4;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Modal */
+.modal {
+    background: #ffffff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 460px;
+    padding: 40px 36px 32px;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Botón cerrar X — Flaticon PNG */
+.btn-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+.btn-close img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Círculo éxito */
+.success-circle {
+    width: 90px;
+    height: 90px;
+    margin: 8px auto 24px;
+    animation: scaleIn 0.4s ease 0.1s both;
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+
+.success-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Título → Poppins Bold (Título) */
+.modal-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: #333333;
+    text-align: center;
+    margin-bottom: 12px;
+    letter-spacing: -0.3px;
+}
+
+/* Subtítulo → Open Sans Regular (Cuerpo de texto) */
+.modal-subtitle {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+    font-size: 0.95rem;
+    color: #666666;
+    text-align: center;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+/* Notificación box */
+.notice-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #f3f4f6;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 28px;
+}
+
+/* Campana icono */
+.notice-icon {
+    flex-shrink: 0;
+}
+
+.notice-icon img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+}
+
+/* Texto de notificación → Open Sans Regular (Cuerpo de texto) */
+.notice-text {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+    font-size: 0.88rem;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+/* "¡Revisa tu correo!" → Poppins SemiBold (Subtítulo) */
+.notice-text strong {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: #333333;
+    display: block;
+    margin-bottom: 2px;
+}
+
+/* Botón principal → Poppins SemiBold (Subtítulo) */
+.btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 24px;
+    background: #3B3B98;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover {
+    background: #2e2e7a;
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+.btn-primary img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); 
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .modal {
+        padding: 32px 24px 28px;
+        border-radius: 14px;
+    }
+    .modal-title {
+        font-size: 1.4rem;
+    }
+    .success-circle {
+        width: 80px;
+        height: 80px;
+    }
+}

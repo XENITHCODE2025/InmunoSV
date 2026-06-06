@@ -1,0 +1,432 @@
+/* ===== VARIABLES DE COLOR ===== */
+:root {
+    --azul-principal: #3333BB;
+    --verde-salud: #20C326;
+    --gris-claro: #F2F2F2;
+    --gris-oscuro: #333333;
+    --blanco: #FFFFFF;
+    
+    --fuente-titulos: 'Poppins', sans-serif;
+    --fuente-texto: 'Open Sans', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--fuente-texto);
+    background-color: var(--blanco);
+    color: var(--gris-oscuro);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--fuente-titulos);
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 60px;
+    background: var(--blanco);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.nav-logo-img {
+    height: 38px;
+    width: auto;
+}
+
+.nav-links {
+    display: flex;
+    gap: 35px;
+    list-style: none;
+    margin-left: auto;
+    margin-right: 40px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--azul-principal);
+    font-family: var(--fuente-titulos);
+    font-weight: 700;
+    font-size: 15px;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: var(--verde-salud);
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-login {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--azul-principal);
+    color: var(--blanco);
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-family: var(--fuente-texto);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.btn-login:hover { opacity: 0.85; }
+
+/* Icono login - blanco y MÁS GRUESO */
+.btn-login img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1) drop-shadow(0 0 0px rgba(255,255,255,1));
+}
+
+.btn-register {
+    background: transparent;
+    color: var(--azul-principal);
+    border: 2px solid var(--azul-principal);
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-family: var(--fuente-texto);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-register:hover {
+    background: var(--azul-principal);
+    color: var(--blanco);
+}
+
+/* ===== HERO ===== */
+.hero {
+    width: 100%;
+    position: relative;          /* ← asegura que el absolute del content funcione */
+    display: block;              /* ← cambiar flex → block */
+    overflow: hidden;
+}
+
+.hero-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+}
+
+.hero::before {
+    display: none;
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+        rgba(235,243,250,1)    0%,
+        rgba(235,243,250,0.98) 30%,
+        rgba(235,243,250,0.7)  45%,
+        rgba(255,255,255,0.2)  60%,
+        transparent            75%
+    );
+    z-index: 1;
+}
+
+.hero-content {
+    position: absolute;
+    top: 0;
+    left: 80px;
+    width: 40%;
+    max-width: 500px;
+    z-index: 2;
+    height: 70%;                    /* ← ocupa todo el alto */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;        
+}
+
+.hero h1 {
+    font-size: 60px;
+    font-weight: 800;
+    color: var(--azul-principal);
+    margin-bottom: 14px;
+}
+
+.hero p {
+    font-size: 40px;
+    font-family: var(--fuente-titulos);             
+    color: var(--gris-oscuro);
+    line-height: 1.3;
+}
+
+/* ===== QUIENES SOMOS ===== */
+.quienes-somos {
+    padding: 20px 80px 60px;  /* reducido a 20px arriba para quedar más cerca */
+    text-align: center;
+}
+
+.quienes-somos h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #000;
+    margin-bottom: 40px;
+}
+
+.quienes-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 900px;
+    margin: 0 auto 60px auto;
+    gap: 40px;
+}
+
+.quienes-text {
+    width: 55%;
+    text-align: left;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--gris-oscuro);
+}
+
+.quienes-logo-big {
+    width: 35%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.quienes-logo-big img {
+    max-width: 200px;
+    height: auto;
+}
+
+/* Tarjetas Misión, Visión, Valores */
+.mvv-cards {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+}
+
+.mvv-card {
+    width: 320px;
+    min-height: 220px;
+    padding: 40px 25px 25px 25px;
+    border-radius: 8px;
+    text-align: left;
+    position: relative;
+    color: var(--blanco);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.mvv-card.mision { background: var(--azul-principal); }
+.mvv-card.vision { background: var(--verde-salud); }
+.mvv-card.valores { background: var(--azul-principal); }
+
+.mvv-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+.mvv-card p, .mvv-card ul {
+    font-size: 13.5px;
+    line-height: 1.6;
+    opacity: 0.95;
+    font-family: var(--fuente-texto);
+}
+
+.mvv-card ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.mvv-card ul li {
+    margin-bottom: 4px;
+}
+
+/* Íconos MVV - MÁS GRANDES y con COLOR ORIGINAL */
+.mvv-icon {
+    position: absolute;
+    left: -15px;
+    top: -15px;
+    width: 60px;
+    height: 60px;
+    background: var(--blanco);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.mvv-icon img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    filter: contrast(1.4) saturate(1.2);
+}
+
+/* ===== SERVICIOS ===== */
+.servicios {
+    padding: 20px 80px 80px;
+    text-align: center;
+}
+
+.servicios h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #000;
+    margin-bottom: 50px;
+}
+
+.servicios-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.servicio-item {
+    width: 22%;
+    min-width: 200px;
+    text-align: center;
+}
+
+.servicio-item h3 {
+    color: var(--azul-principal);
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.servicio-icon-circle {
+    width: 100px;
+    height: 100px;
+    background: #EAF7FB;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.servicio-icon-circle img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    filter: contrast(1.3);
+}
+
+.servicio-item p {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--gris-oscuro);
+    font-weight: 400;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    background: var(--azul-principal);
+    color: var(--blanco);
+    padding: 15px 80px;
+    display: flex;
+    justify-content: flex-start; 
+    align-items: center;
+    gap: 60px;                     
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--fuente-titulos);
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.footer-logo img {
+    height: 45px;
+    width: auto;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.footer-email {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--fuente-texto);
+    font-size: 15px;
+}
+
+.footer-email img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.footer-country {
+    font-family: var(--fuente-titulos);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-left: auto;            
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+    .navbar {
+        padding: 10px 20px;
+    }
+    
+    .nav-links, .hero-content { 
+        display: none; 
+    }
+    
+    .quienes-container, 
+    .mvv-cards, 
+    .servicios-grid { 
+        flex-direction: column; 
+        align-items: center; 
+    }
+    
+    .servicio-item, 
+    .mvv-card { 
+        width: 80%; 
+        margin-bottom: 20px; 
+    }
+    
+    .quienes-text, 
+    .quienes-logo-big { 
+        width: 100%; 
+        text-align: center; 
+    }
+    
+    .footer {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+        padding: 20px;
+    }
+}
