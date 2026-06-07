@@ -552,12 +552,13 @@
             });
         }
 
-        // Envío seguro interceptado para control de JavaScript preliminar
-        form.addEventListener('submit', function(e) {
-            if (!validateStep3()) {
-                e.preventDefault();
-            }
-        });
+        const form = document.getElementById('registerForm');
+
+         form.addEventListener('submit', function(e) {
+           if (!validateStep3()) {
+           e.preventDefault();
+        }
+        });  
 
         function showToast(type, message) {
             const toast = document.getElementById('toast');

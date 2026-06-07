@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\Auth\LoginController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -93,3 +94,20 @@ Route::get('/muni', function () {
 Route::post('/registrar-vacuna', function () {
     return redirect('/mi-historial');
 })->name('vacunas.store');
+
+
+
+//ruta controller registro de users 
+use App\Http\Controllers\Auth\RegisterController;
+
+Route::post('/registro', [RegisterController::class, 'store']);
+
+//ruta controller login de users 
+Route::get('/login', function () {
+    return view('login');
+})->name('login');
+
+Route::post('/login', [LoginController::class, 'login']);
+
+Route::post('/logout', [LoginController::class, 'logout'])
+    ->middleware('auth');
