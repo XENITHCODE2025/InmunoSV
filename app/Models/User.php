@@ -34,4 +34,21 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function encuestaSalud()
+    {
+        return $this->hasOne(
+            EncuestaSalud::class,
+            'user_id',
+            'id'
+        );
+    }
+
+    public function encuestas()
+    {
+        return $this->hasMany(
+            EncuestaSalud::class,
+            'user_id'
+        );
+    }
 }

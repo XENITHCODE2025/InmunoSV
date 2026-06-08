@@ -33,7 +33,7 @@
             </span>
         </div>
 
-        <a href="{{ url('/') }}" class="btn-primary">
+        <a href="{{ url('/mi-historial') }}" class="btn-primary">
             <img src="{{ asset('img/icons/hogar.png') }}" alt="Inicio">
             Ir a pantalla principal
         </a>

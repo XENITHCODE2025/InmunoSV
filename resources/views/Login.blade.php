@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-    
+
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 </head>
+
 <body>
 
     <main class="login-container">
@@ -21,7 +23,8 @@
                 <p class="brand-tagline">Salud preventiva, siempre contigo</p>
             </div>
 
-            <form class="login-form" id="loginForm" novalidate>
+            <form class="login-form" id="loginForm" method="POST" action="{{ route('login') }}" novalidate>
+                @csrf
                 <h2 class="form-title">Iniciar Sesión</h2>
                 <p class="form-subtitle">Ingresa tus datos para continuar</p>
 
@@ -30,23 +33,28 @@
                     <div class="input-wrapper">
                         <span class="input-icon" aria-hidden="true">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="4" width="20" height="16" rx="2"/>
-                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                                <rect x="2" y="4" width="20" height="16" rx="2" />
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                             </svg>
                         </span>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            class="form-input" 
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="form-input"
                             placeholder="ejemplo@gmail.com"
                             autocomplete="email"
                             required
                             aria-describedby="email-error"
-                            maxlength="100"
-                        >
+                            maxlength="100">
                     </div>
                     <span class="error-message" id="email-error" role="alert"></span>
+
+                    @error('email')
+                    <span class="error-message" style="display:block;">
+                        {{ $message }}
+                    </span>
+                    @enderror
                 </div>
 
                 <div class="input-group">
@@ -54,31 +62,30 @@
                     <div class="input-wrapper">
                         <span class="input-icon" aria-hidden="true">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                             </svg>
                         </span>
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password" 
-                            class="form-input" 
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="form-input"
                             placeholder="Tu contraseña"
                             autocomplete="current-password"
                             required
                             aria-describedby="password-error"
-                            maxlength="128"
-                        >
+                            maxlength="128">
                         <button type="button" class="toggle-password" aria-label="Mostrar contraseña" onclick="togglePassword()">
                             <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                                <circle cx="12" cy="12" r="3" />
                             </svg>
                             <svg id="eye-off-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
-                                <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
-                                <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
-                                <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
-                                <line x1="2" x2="22" y1="2" y2="22"/>
+                                <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                                <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                                <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+                                <line x1="2" x2="22" y1="2" y2="22" />
                             </svg>
                         </button>
                     </div>
@@ -98,8 +105,8 @@
                     <span id="btn-text">Iniciar Sesión</span>
                     <div class="spinner" id="btn-spinner" style="display: none;"></div>
                     <svg id="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M5 12h14"/>
-                        <path d="m12 5 7 7-7 7"/>
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
                     </svg>
                 </button>
             </form>
@@ -279,9 +286,20 @@
         }
 
         // Listeners en tiempo real
-        emailInput.addEventListener('input', function() { if (this.value.trim()) validateEmail(); else clearError('email'); });
-        passwordInput.addEventListener('input', function() { if (this.value) validatePassword(); else clearError('password'); });
-        emailInput.addEventListener('paste', function() { setTimeout(() => { this.value = this.value.trim().replace(/\s/g, ''); validateEmail(); }, 0); });
+        emailInput.addEventListener('input', function() {
+            if (this.value.trim()) validateEmail();
+            else clearError('email');
+        });
+        passwordInput.addEventListener('input', function() {
+            if (this.value) validatePassword();
+            else clearError('password');
+        });
+        emailInput.addEventListener('paste', function() {
+            setTimeout(() => {
+                this.value = this.value.trim().replace(/\s/g, '');
+                validateEmail();
+            }, 0);
+        });
 
         function setLoading(loading) {
             if (loading) {
@@ -299,35 +317,33 @@
 
         // Enviar Formulario con redirección limpia de Laravel
         form.addEventListener('submit', function(e) {
-            e.preventDefault();
 
-            if (checkLockout()) return;
+            if (checkLockout()) {
+                e.preventDefault();
+                return;
+            }
 
             const isEmailValid = validateEmail();
             const isPasswordValid = validatePassword();
 
             if (!isEmailValid || !isPasswordValid) {
-                if (!isEmailValid) emailInput.focus();
-                else passwordInput.focus();
+                e.preventDefault();
+
+                if (!isEmailValid) {
+                    emailInput.focus();
+                } else {
+                    passwordInput.focus();
+                }
+
                 return;
             }
 
             setLoading(true);
-
-            // Simulación de respuesta exitosa conectada a las rutas reales de Laravel
-            setTimeout(() => {
-                setLoading(false);
-                showToast('success', '¡Inicio de sesión exitoso! Redirigiendo...');
-                
-                setTimeout(() => {
-                    // Redirección dinámica limpia al ruteo de Blade
-                    window.location.href = "{{ url('/crear-historial') }}";
-                }, 1000);
-            }, 1200);
         });
 
         // Inicializar revisión de bloqueo al cargar
         checkLockout();
     </script>
 </body>
+
 </html>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\EncuestaSalud;
 
 class LoginController extends Controller
 {
@@ -21,7 +22,16 @@ class LoginController extends Controller
 
             $request->session()->regenerate();
 
-            return redirect()->intended('/bienvenida');
+            $encuestaExiste = EncuestaSalud::where(
+                'user_id',
+                Auth::id()
+            )->exists();
+
+            if ($encuestaExiste) {
+                return redirect('/mi-historial');
+            }
+
+            return redirect('/bienvenida');
         }
 
         return back()->withErrors([
