@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\EncuestaSaludController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\AudioController;
 
 
 /*
@@ -92,4 +94,34 @@ Route::middleware('auth')->group(function () {
     Route::get('/muni', function () {
         return view('muni');
     });
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Rutas del Asistente Virtual Muni — InmunoSV
+|--------------------------------------------------------------------------
+| Todas las rutas están protegidas por el middleware 'auth'.
+| El token CSRF se valida automáticamente en las solicitudes POST.
+*/
+
+Route::middleware(['auth'])->group(function () {
+
+    // ── Vista principal del chatbot ─────────────────────────────────────────
+    Route::get('/muni', [ChatController::class, 'index'])->name('muni');
+
+    // ── API de mensajes ─────────────────────────────────────────────────────
+    Route::post('/muni/mensaje', [ChatController::class, 'sendMessage'])->name('muni.mensaje');
+
+    // ── Historial de conversaciones ─────────────────────────────────────────
+    Route::get('/muni/historial', [ChatController::class, 'history'])->name('muni.historial');
+
+    // ── Cargar conversación específica ──────────────────────────────────────
+    Route::post('/muni/conversacion', [ChatController::class, 'getConversacion'])->name('muni.conversacion');
+
+    // ── Nueva conversación ──────────────────────────────────────────────────
+    Route::post('/muni/nueva', [ChatController::class, 'nuevaConversacion'])->name('muni.nueva');
+
+    // ── Audio: subir y transcribir ──────────────────────────────────────────
+    Route::post('/muni/audio', [AudioController::class, 'uploadAudio'])->name('muni.audio');
 });

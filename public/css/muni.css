@@ -754,3 +754,65 @@ body {
 :focus-visible {
     outline: none;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   REPRODUCTOR DE AUDIO — ANIMACIÓN WAVEFORM
+   Pega este bloque al final de tu muni.css
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Las barras del SVG se animan solo cuando el audio está reproduciéndose.
+   El JS agrega/quita la clase .playing en .audio-waveform */
+
+.audio-waveform rect {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+}
+
+/* Barras impares: suben más alto */
+.audio-waveform.playing rect:nth-child(odd) {
+    animation: wave-alta 0.55s ease-in-out infinite alternate;
+}
+
+/* Barras pares: oscilan menos para dar sensación de profundidad */
+.audio-waveform.playing rect:nth-child(even) {
+    animation: wave-baja 0.40s ease-in-out infinite alternate;
+}
+
+/* Retrasos escalonados para que no suban todas al mismo tiempo */
+.audio-waveform.playing rect:nth-child(3n)   { animation-delay: 0.1s; }
+.audio-waveform.playing rect:nth-child(3n+1) { animation-delay: 0.2s; }
+.audio-waveform.playing rect:nth-child(3n+2) { animation-delay: 0.05s; }
+
+@keyframes wave-alta {
+    from { transform: scaleY(0.4); }
+    to   { transform: scaleY(1.0); }
+}
+
+@keyframes wave-baja {
+    from { transform: scaleY(0.7); }
+    to   { transform: scaleY(0.3); }
+}
+
+/* ── Duración del audio ──────────────────────────────────────────────────── */
+
+.audio-duration {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #3933B2;
+    min-width: 28px;
+    text-align: right;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums; /* evita que el número salte de ancho */
+}
+
+/* ── Estado grabando: botón pulsa en rojo ────────────────────────────────── */
+
+.btn-audio.recording {
+    color: #e53e3e;
+    animation: pulso-grabacion 1s ease-in-out infinite;
+}
+
+@keyframes pulso-grabacion {
+    0%, 100% { opacity: 1;    transform: scale(1);    }
+    50%       { opacity: 0.6; transform: scale(1.15); }
+}
