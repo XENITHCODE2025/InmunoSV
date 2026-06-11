@@ -5,9 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\EncuestaSaludController;
+use App\Http\Controllers\VacunaController;
+use App\Http\Controllers\HistorialController;
+use App\Http\Controllers\RegistrarVacunaController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\AudioController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -52,11 +54,11 @@ Route::middleware('auth')->group(function () {
 
     // Encuesta inicial
     Route::get('/bienvenida', [EncuestaSaludController::class, 'index'])
-    ->middleware('auth');
+        ->middleware('auth');
 
     Route::post('/encuesta-salud', [EncuestaSaludController::class, 'store'])
-    ->middleware('auth')
-    ->name('encuesta.store');
+        ->middleware('auth')
+        ->name('encuesta.store');
 
     // Perfil
     Route::get('/mi-perfil', function () {
@@ -64,9 +66,8 @@ Route::middleware('auth')->group(function () {
     });
 
     // Historial
-    Route::get('/mi-historial', function () {
-        return view('Mi-historial');
-    });
+    Route::get('/mi-historial', [HistorialController::class, 'index'])
+        ->middleware('auth');
 
     Route::get('/crear-historial', function () {
         return view('Crear-historial-de-vacunacion');
@@ -77,9 +78,17 @@ Route::middleware('auth')->group(function () {
     })->name('historial.store');
 
     // Vacunas
-    Route::get('/registrar-vacuna', function () {
-        return view('Registrar-vacuna');
-    });
+    Route::get('/Registrar-vacuna', [RegistrarVacunaController::class, 'create'])
+        ->middleware('auth');
+
+    Route::post('/Registrar-vacuna', [VacunaController::class, 'store'])
+        ->name('Registrar-vacuna')
+        ->middleware('auth');
+
+    Route::delete(
+        '/vacunas/{id}',
+        [RegistrarVacunaController::class, 'destroy']
+    );
 
     // Notificaciones
     Route::get('/notificaciones', function () {
@@ -95,6 +104,7 @@ Route::middleware('auth')->group(function () {
         return view('muni');
     });
 });
+
 
 
 /*

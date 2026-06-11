@@ -27,23 +27,19 @@
     --rojo-error: #dc2626;
     --naranja: #f59e0b;
     --morado: #7c3aed;
-
     --font-titulo: 'Poppins', sans-serif;
     --font-cuerpo: 'Open Sans', sans-serif;
-
     --texto-base: 1rem;
     --texto-grande: 1.125rem;
     --texto-pequeno: 0.875rem;
     --texto-xs: 0.8125rem;
     --texto-sm: 0.75rem;
-
     --espaciado-xs: 0.5rem;
     --espaciado-sm: 0.75rem;
     --espaciado-md: 1rem;
     --espaciado-lg: 1.25rem;
     --espaciado-xl: 1.5rem;
     --espaciado-xxl: 2rem;
-
     --radio-sm: 8px;
     --radio-md: 12px;
     --radio-lg: 16px;
@@ -67,6 +63,7 @@ body {
 .hidden {
     display: none !important;
 }
+
 
 /* ============================================
    SIDEBAR
@@ -94,9 +91,11 @@ body {
     border-bottom: 1px solid #f0f0f0;
 }
 
+
 /* ============================================
    LOGO PEQUEÑO
    ============================================ */
+
 .logo-small {
     width: 32px;
     height: 40px;
@@ -170,6 +169,7 @@ body {
     border-top: 1px solid #f0f0f0;
 }
 
+
 /* ============================================
    OVERLAY MÓVIL
    ============================================ */
@@ -189,6 +189,7 @@ body {
     visibility: visible;
 }
 
+
 /* ============================================
    PAGE WRAPPER (3-column layout)
    ============================================ */
@@ -204,6 +205,7 @@ body {
     padding: var(--espaciado-xxl);
     min-width: 0;
 }
+
 
 /* ============================================
    HEADER MÓVIL
@@ -254,6 +256,7 @@ body {
     justify-content: center;
 }
 
+
 /* ============================================
    HEADER DESKTOP
    ============================================ */
@@ -275,6 +278,7 @@ body {
     font-size: var(--texto-base);
     color: var(--gris-label);
 }
+
 
 /* ============================================
    FILTROS
@@ -374,7 +378,9 @@ body {
     box-shadow: 0 0 0 3px rgba(57, 51, 178, 0.1);
 }
 
+
 /* Botón Registrar vacuna */
+
 .btn-registrar {
     display: inline-flex;
     align-items: center;
@@ -398,6 +404,7 @@ body {
     transform: translateY(-1px);
     box-shadow: 0 6px 20px rgba(57, 51, 178, 0.25);
 }
+
 
 /* ============================================
    TABLA SECTION
@@ -466,7 +473,9 @@ body {
     border-bottom: none;
 }
 
+
 /* Celda de vacuna con icono */
+
 .vacuna-cell {
     display: flex;
     align-items: center;
@@ -503,7 +512,9 @@ body {
     color: var(--blanco);
 }
 
+
 /* Botón menú 3 puntos */
+
 .btn-menu {
     background: none;
     border: none;
@@ -522,7 +533,9 @@ body {
     color: var(--gris-oscuro);
 }
 
+
 /* Botón marcar como aplicada */
+
 .btn-marcar {
     display: inline-flex;
     align-items: center;
@@ -545,7 +558,9 @@ body {
     box-shadow: 0 4px 12px rgba(57, 51, 178, 0.2);
 }
 
+
 /* Nota debajo de la tabla */
+
 .tabla-nota {
     padding: var(--espaciado-md) var(--espaciado-xl);
     font-size: var(--texto-sm);
@@ -554,7 +569,9 @@ body {
     border-top: 1px solid #f0f0f0;
 }
 
+
 /* Tabla pendientes - fondo diferente */
+
 .tabla-pendientes thead {
     background: #fff8e6;
 }
@@ -562,6 +579,7 @@ body {
 .tabla-pendientes th {
     color: var(--naranja);
 }
+
 
 /* ============================================
    CARDS MÓVIL
@@ -635,6 +653,7 @@ body {
     width: 100%;
     justify-content: center;
 }
+
 
 /* ============================================
    RECOMENDACIONES PANEL
@@ -730,6 +749,7 @@ body {
     height: 14px;
 }
 
+
 /* ============================================
    RESPONSIVE
    ============================================ */
@@ -738,7 +758,6 @@ body {
     .recomendaciones-panel {
         display: none;
     }
-
     .page-wrapper {
         margin-left: 260px;
     }
@@ -748,73 +767,57 @@ body {
     .sidebar {
         transform: translateX(-100%);
     }
-
     .sidebar.open {
         transform: translateX(0);
     }
-
     .page-wrapper {
         margin-left: 0;
     }
-
     .main-content {
         padding: 0;
     }
-
     .mobile-header {
         display: flex;
     }
-
     .desktop-header {
         padding: var(--espaciado-lg) var(--espaciado-md);
         margin-bottom: var(--espaciado-md);
     }
-
     .page-title {
         font-size: 1.375rem;
     }
-
     .filtros-section {
         padding: var(--espaciado-md);
         margin-bottom: var(--espaciado-md);
     }
-
     .filtros-row {
         flex-direction: column;
         align-items: stretch;
         gap: var(--espaciado-sm);
     }
-
     .filtro-group {
         min-width: 100%;
     }
-
     .filtro-group.filtro-busqueda {
         min-width: 100%;
     }
-
     .btn-registrar {
         width: 100%;
         justify-content: center;
     }
-
     .tabla-desktop {
         display: none;
     }
-
     .cards-movil {
         display: flex;
     }
-
     .tabla-section {
         margin: var(--espaciado-md);
         border-radius: var(--radio-lg);
     }
-
     .section-title {
         padding: var(--espaciado-md);
     }
-
     .tabla-nota {
         padding: var(--espaciado-md);
     }
@@ -824,12 +827,12 @@ body {
     .filtros-row {
         flex-wrap: wrap;
     }
-
     .filtro-group.filtro-busqueda {
         min-width: 100%;
         margin-top: var(--espaciado-sm);
     }
 }
+
 
 /* ============================================
    ACCESIBILIDAD
@@ -847,4 +850,29 @@ body {
 :focus-visible {
     outline: 3px solid var(--verde-salud);
     outline-offset: 2px;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 35px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+    z-index: 100;
+}
+
+.btn-eliminar {
+    border: none;
+    background: transparent;
+    padding: 10px 15px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+
+.btn-eliminar:hover {
+    background: #f5f5f5;
 }
