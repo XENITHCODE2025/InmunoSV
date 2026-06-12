@@ -30,4 +30,19 @@ class Vacuna extends Model
             'id_vacuna'
         );
     }
+
+    // ─── Relaciones ───────────────────────────────────────────────────────────
+ 
+    /**
+     * Encuestas que reportan esta vacuna.
+     */
+    public function encuestas()
+    {
+        return $this->belongsToMany(
+            EncuestaSalud::class,
+            'encuesta_vacunas',
+            'vacuna_id',
+            'encuesta_id'
+        );
+    }
 }

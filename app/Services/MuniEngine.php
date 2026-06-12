@@ -4,47 +4,51 @@ namespace App\Services;
 
 use App\Models\Conversacion;
 use App\Models\User;
+use App\Models\Vacuna;
+use App\Models\VacunaRegistrada;
+use Illuminate\Support\Collection;
 
 /**
- * MuniEngine
- * ──────────────────────────────────────────────────────────────────────────────
- * Motor de respuestas del asistente virtual Muni.
- * No utiliza IA externa. Funciona con heurísticas, reglas de negocio,
- * normalización de texto, palabras clave y contexto conversacional.
+ * MuniEngine v2
+ * Consulta datos reales del usuario desde la base de datos.
+ * No utiliza IA externa.
  */
 class MuniEngine
 {
-    private User $user;
+    private User         $user;
     private Conversacion $conversacion;
-    private array $vacunasAplicadas  = [];
-    private array $vacunasPendientes = [];
-    private int   $edad              = 0;
 
-    // ─── Intenciones y sus palabras clave ─────────────────────────────────────
+    private int        $edad            = 0;
+    private Collection $vacunasAplicadas;
+    private Collection $vacunasEncuesta;
+    private Collection $condiciones;
+    private Collection $todasLasVacunas;
+    private ?string    $municipio       = null;
+    private ?string    $otraCondicion   = null;
 
     private array $intenciones = [
-        'saludo'        => ['hola', 'buenos', 'buenas', 'hey', 'ey', 'saludos', 'hi', 'hello', 'que tal', 'que hay'],
-        'vacunas'       => ['vacuna', 'vacunas', 'dosis', 'inyeccion', 'inyecciones', 'piquete', 'piquetes', 'inmunizacion', 'inmunizar', 'biológico'],
-        'pendientes'    => ['faltan', 'falta', 'pendiente', 'pendientes', 'me falta', 'no tengo', 'necesito', 'necesito aplicarme'],
-        'aplicadas'     => ['aplique', 'apliqué', 'tengo', 'puse', 'recibí', 'recibi', 'ya me', 'completé', 'complete'],
-        'recordatorio'  => ['recordatorio', 'recordar', 'recordatorios', 'alerta', 'alertas', 'aviso', 'avisos', 'cita', 'citas', 'notificacion', 'notificacion', 'avisar'],
-        'lugar'         => ['donde', 'dónde', 'lugar', 'centro', 'clinica', 'clínica', 'hospital', 'unidad', 'salud', 'aplicar', 'puesto', 'vacunatorio'],
-        'informacion'   => ['informacion', 'información', 'que es', 'qué es', 'para que', 'para qué', 'sirve', 'explica', 'cuéntame', 'cuentame', 'detalle'],
-        'esquema'       => ['esquema', 'calendario', 'plan', 'cuantas', 'cuántas', 'veces', 'refuerzo', 'refuerzos', 'dosis'],
-        'recomendacion' => ['recomienda', 'recomendacion', 'recomendación', 'sugiere', 'sugerencia', 'consejo', 'consejos'],
-        'ayuda'         => ['ayuda', 'soporte', 'opciones', 'funciones', 'no se que hacer', 'no sé que hacer', 'que puedes', 'qué puedes', 'como funciona', 'cómo funciona'],
-        'despedida'     => ['adios', 'adiós', 'chao', 'chau', 'hasta luego', 'bye', 'gracias', 'muchas gracias'],
+        'saludo'        => ['hola', 'buenos', 'buenas', 'hey', 'saludos', 'hi', 'que tal', 'que hay', 'buen dia'],
+        'vacunas'       => ['que vacunas me faltan', 'vacunas pendientes', 'cuales me faltan', 'que me falta'],
+        'pendientes'    => ['faltan', 'falta', 'pendiente', 'pendientes', 'me falta', 'no tengo', 'necesito', 'cuales me faltan', 'que me faltan', 'que vacunas me faltan'],
+        'aplicadas'     => ['aplique', 'apliqué', 'tengo aplicadas', 'puse', 'recibi', 'ya me puse', 'complete', 'me aplique', 'tengo aplicada', 'aplicadas', 'he aplicado', 'me he puesto', 'ya tengo', 'cuales tengo', 'que tengo', 'tengo registradas', 'historial', 'mis vacunas'],
+        'recordatorio'  => ['recordatorio', 'recordar', 'alerta', 'avisos', 'cita', 'citas', 'notificacion', 'avisar'],
+        'lugar'         => ['donde', 'lugar', 'centro', 'clinica', 'hospital', 'unidad', 'aplicar', 'puesto', 'me la puedo'],
+        'informacion'   => ['informacion', 'que es', 'para que', 'sirve', 'explica', 'cuentame', 'detalle', 'describe'],
+        'esquema'       => ['esquema', 'calendario', 'plan', 'cuantas', 'veces', 'refuerzo', 'refuerzos'],
+        'recomendacion' => ['recomienda', 'recomendacion', 'sugiere', 'sugerencia', 'consejo', 'que debo'],
+        'condiciones'   => ['condicion', 'condiciones', 'enfermedad', 'enfermedades', 'padezco', 'cronico', 'cronica'],
+        'catalogo'      => ['catalogo', 'lista de vacunas', 'todas las vacunas', 'vacunas disponibles', 'que vacunas hay'],
+        'ayuda'         => ['ayuda', 'soporte', 'opciones', 'funciones', 'que puedes', 'como funciona', 'no se que hacer'],
+        'despedida'     => ['adios', 'chao', 'chau', 'hasta luego', 'bye', 'gracias', 'muchas gracias'],
     ];
-
-    // ─── Sinónimos de vacunas específicas ─────────────────────────────────────
 
     private array $sinonimosVacunas = [
         'influenza'   => ['influenza', 'gripe', 'flu', 'gripa'],
-        'hepatitis_b' => ['hepatitis b', 'hepatitis', 'hep b', 'hepb'],
-        'tetanos'     => ['tetanos', 'tétanos', 'tetano', 'td', 'dt'],
-        'vph'         => ['vph', 'papiloma', 'papilomavirus', 'virus del papiloma', 'hpv'],
-        'neumococo'   => ['neumococo', 'neumonía', 'neumonia', 'pneumococo'],
-        'covid'       => ['covid', 'coronavirus', 'sars', 'pandemia'],
+        'hepatitis_b' => ['hepatitis b', 'hepatitis', 'hep b'],
+        'tetanos'     => ['tetanos', 'tetano', 'td', 'dt', 'toxoide'],
+        'vph'         => ['vph', 'papiloma', 'papilomavirus', 'hpv'],
+        'neumococo'   => ['neumococo', 'neumonia', 'pneumococo'],
+        'covid'       => ['covid', 'coronavirus', 'sars'],
     ];
 
     // ─── Constructor ──────────────────────────────────────────────────────────
@@ -58,17 +62,12 @@ class MuniEngine
 
     // ─── API pública ──────────────────────────────────────────────────────────
 
-    /**
-     * Punto de entrada principal. Recibe el mensaje crudo del usuario
-     * y retorna la respuesta del bot.
-     */
     public function getMuniResponse(string $mensajeRaw): string
     {
         $texto     = $this->normalizar($mensajeRaw);
         $intencion = $this->detectarIntencion($texto);
         $vacunaRef = $this->detectarVacunaEspecifica($texto);
 
-        // Guardar contexto si se detectó vacuna
         if ($vacunaRef) {
             $this->actualizarContexto('ultima_vacuna', $vacunaRef);
         }
@@ -76,70 +75,107 @@ class MuniEngine
         return $this->generarRespuesta($intencion, $texto, $vacunaRef);
     }
 
+    // ─── Carga de datos desde BD ──────────────────────────────────────────────
+
+    private function cargarDatosUsuario(): void
+    {
+        // fecha_nacimiento ya viene como cast 'date' en User, Carbon lo maneja directo
+        $this->edad = $this->user->fecha_nacimiento
+            ? $this->user->fecha_nacimiento->age
+            : 0;
+
+        // Vacunas registradas manualmente (tabla vacunas_aplicadas via VacunaRegistrada)
+        $this->vacunasAplicadas = $this->user->vacunasAplicadas()->get();
+
+        // Encuesta de salud con sus relaciones pivot
+        $encuesta = $this->user->encuestaSalud()
+            ->with(['vacunas', 'condiciones'])
+            ->first();
+
+        $this->vacunasEncuesta = $encuesta ? $encuesta->vacunas  : collect();
+        $this->condiciones     = $encuesta ? $encuesta->condiciones : collect();
+        $this->municipio       = $encuesta?->municipio;
+        $this->otraCondicion   = $encuesta?->otra_condicion;
+
+        // Catálogo completo de vacunas del sistema
+        $this->todasLasVacunas = Vacuna::all();
+    }
+
     // ─── Normalización ────────────────────────────────────────────────────────
 
-    /**
-     * Convierte el texto a minúsculas, elimina acentos y caracteres especiales.
-     */
-    private function normalizar(string $texto): string
+    private function normalizar(?string $texto): string
     {
+        if ($texto === null) return '';
         $texto = mb_strtolower(trim($texto));
-
-        $acentos = [
+        return strtr($texto, [
             'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u',
             'à' => 'a', 'è' => 'e', 'ì' => 'i', 'ò' => 'o', 'ù' => 'u',
             'ü' => 'u', 'ñ' => 'n',
-        ];
-
-        return strtr($texto, $acentos);
+        ]);
     }
 
     // ─── Detección de intención ───────────────────────────────────────────────
 
-    private function detectarIntencion(string $textoNorm): string
+    private function detectarIntencion(string $texto): string
     {
-        $mejorIntencion = 'desconocido';
-        $mejorPuntaje   = 0;
+        $mejor   = 'desconocido';
+        $puntaje = 0;
 
         foreach ($this->intenciones as $intencion => $palabras) {
-            $puntaje = 0;
-            foreach ($palabras as $palabra) {
-                if (str_contains($textoNorm, $palabra)) {
-                    $puntaje++;
+            $pts = 0;
+            foreach ($palabras as $p) {
+                if (str_contains($texto, $p)) {
+                    // Las frases de más de una palabra tienen doble peso
+                    $pts += str_word_count($p) > 1 ? 2 : 1;
                 }
             }
-            if ($puntaje > $mejorPuntaje) {
-                $mejorPuntaje   = $puntaje;
-                $mejorIntencion = $intencion;
+            if ($pts > $puntaje) {
+                $puntaje = $pts;
+                $mejor   = $intencion;
             }
         }
 
-        // Regla: si menciona "donde" junto con contexto de vacuna pendiente → lugar
-        if (str_contains($textoNorm, 'donde') || str_contains($textoNorm, 'la puedo')) {
-            $mejorIntencion = 'lugar';
+        // ── Reglas explícitas de desambiguación ───────────────────────────────
+
+        // "tengo aplicadas/aplicada/registradas" → aplicadas (no pendientes)
+        if (preg_match('/tengo.*(aplicad|registrad|pues)/i', $texto)) {
+            $mejor = 'aplicadas';
         }
 
-        return $mejorIntencion;
+        // "que vacunas he/ya/me" sin "faltan/falta/pendiente" → aplicadas
+        if (str_contains($texto, 'vacuna') &&
+            (str_contains($texto, 'ya') || str_contains($texto, 'he') || str_contains($texto, 'historial')) &&
+            !str_contains($texto, 'falt') && !str_contains($texto, 'pendiente')) {
+            $mejor = 'aplicadas';
+        }
+
+        // "donde" siempre es lugar
+        if (str_contains($texto, 'donde') || str_contains($texto, 'me la puedo')) {
+            $mejor = 'lugar';
+        }
+
+        return $mejor;
     }
 
-    // ─── Detección de vacuna específica ───────────────────────────────────────
+    // ─── Detección de vacuna en el texto ──────────────────────────────────────
 
-    private function detectarVacunaEspecifica(string $textoNorm): ?string
+    private function detectarVacunaEspecifica(string $texto): ?string
     {
         foreach ($this->sinonimosVacunas as $clave => $sinonimos) {
-            foreach ($sinonimos as $sinonimo) {
-                if (str_contains($textoNorm, $sinonimo)) {
-                    return $clave;
-                }
+            foreach ($sinonimos as $s) {
+                if (str_contains($texto, $s)) return $clave;
             }
         }
 
-        // Resolución por contexto: pronombres como "ella", "la", "esa"
-        $pronombresContexto = ['ella', ' la ', 'esa', 'esas', 'esas vacunas', 'las mismas'];
-        foreach ($pronombresContexto as $pron) {
-            if (str_contains($textoNorm, $pron)) {
-                return $this->conversacion->ultima_vacuna; // recuperar del contexto
-            }
+        foreach ($this->todasLasVacunas as $vacuna) {
+            if (!$vacuna->nombre) continue;
+            $nombre = $this->normalizar($vacuna->nombre);
+            if (str_contains($texto, $nombre)) return $nombre;
+        }
+
+        $pronombres = [' la ', 'esa', 'esas', 'ella', 'las mismas', 'esa vacuna'];
+        foreach ($pronombres as $p) {
+            if (str_contains($texto, $p)) return $this->conversacion->ultima_vacuna;
         }
 
         return null;
@@ -149,351 +185,420 @@ class MuniEngine
 
     private function generarRespuesta(string $intencion, string $texto, ?string $vacunaRef): string
     {
-        $nombre = $this->user->nombre ?? 'Usuario';
+        $nombre = $this->user->name ?? 'Usuario';
 
-        switch ($intencion) {
-
-            case 'saludo':
-                return $this->respuestaSaludo($nombre);
-
-            case 'vacunas':
-            case 'pendientes':
-                $this->actualizarContexto('ultimo_tema', 'vacunas_pendientes');
-                return $this->respuestaVacunasPendientes($nombre);
-
-            case 'aplicadas':
-                $this->actualizarContexto('ultimo_tema', 'vacunas_aplicadas');
-                return $this->respuestaVacunasAplicadas($nombre);
-
-            case 'recordatorio':
-                $this->actualizarContexto('ultimo_tema', 'recordatorios');
-                return $this->respuestaRecordatorio($nombre);
-
-            case 'lugar':
-                return $this->respuestaLugar($nombre, $vacunaRef);
-
-            case 'informacion':
-                return $this->respuestaInformacion($nombre, $vacunaRef);
-
-            case 'esquema':
-                $this->actualizarContexto('ultimo_tema', 'esquema');
-                return $this->respuestaEsquema($nombre);
-
-            case 'recomendacion':
-                $this->actualizarContexto('ultimo_tema', 'recomendaciones');
-                return $this->respuestaRecomendaciones($nombre);
-
-            case 'ayuda':
-                return $this->respuestaAyuda($nombre);
-
-            case 'despedida':
-                return $this->respuestaDespedida($nombre);
-
-            default:
-                // Intentar responder según contexto previo
-                return $this->respuestaContextual($nombre);
-        }
+        return match ($intencion) {
+            'saludo'        => $this->respuestaSaludo($nombre),
+            'vacunas'       => $this->respuestaVacunasMenu($nombre),
+            'pendientes'    => $this->respuestaVacunasPendientes($nombre),
+            'aplicadas'     => $this->respuestaVacunasAplicadas($nombre),
+            'recordatorio'  => $this->respuestaRecordatorio($nombre),
+            'lugar'         => $this->respuestaLugar($nombre, $vacunaRef),
+            'informacion'   => $this->respuestaInformacion($nombre, $vacunaRef),
+            'esquema'       => $this->respuestaEsquema($nombre),
+            'recomendacion' => $this->respuestaRecomendaciones($nombre),
+            'condiciones'   => $this->respuestaCondiciones($nombre),
+            'catalogo'      => $this->respuestaCatalogo($nombre),
+            'ayuda'         => $this->respuestaAyuda($nombre),
+            'despedida'     => $this->respuestaDespedida($nombre),
+            default         => $this->respuestaContextual($nombre),
+        };
     }
 
     // ─── Respuestas individuales ──────────────────────────────────────────────
 
+    private function respuestaVacunasMenu(string $nombre): string
+    {
+        return "Claro, **{$nombre}**. ¿Qué información sobre vacunas necesitas?\n\n" .
+               "• 💉 **\"¿Qué vacunas tengo aplicadas?\"** — ver tu historial\n" .
+               "• ⏳ **\"¿Qué vacunas me faltan?\"** — ver pendientes\n" .
+               "• 📋 **\"¿Cuál es mi esquema?\"** — plan completo según tu edad\n" .
+               "• 📖 **\"¿Para qué sirve la Influenza?\"** — información de una vacuna específica";
+    }
+
     private function respuestaSaludo(string $nombre): string
     {
-        $hora = (int) now()->format('H');
-        if ($hora < 12) {
-            $saludo = '¡Buenos días';
-        } elseif ($hora < 18) {
-            $saludo = '¡Buenas tardes';
-        } else {
-            $saludo = '¡Buenas noches';
-        }
+        $hora   = (int) now()->format('H');
+        $saludo = $hora < 12 ? '¡Buenos días' : ($hora < 18 ? '¡Buenas tardes' : '¡Buenas noches');
+        $extra  = $this->condiciones->isNotEmpty()
+            ? "\n\nTengo en cuenta tus condiciones de salud registradas para darte recomendaciones más precisas. 💊"
+            : '';
 
-        return "{$saludo}, {$nombre}! 😊 Soy Muni, tu asistente de salud en InmunoSV.\n\n" .
+        return "{$saludo}, **{$nombre}**! 👋 Soy Muni, tu asistente de salud.\n\n" .
                "Puedo ayudarte con:\n" .
-               "• 💉 Consultar tus vacunas pendientes o aplicadas\n" .
-               "• 📅 Gestionar recordatorios de vacunación\n" .
-               "• 🏥 Encontrar dónde aplicarte vacunas\n" .
-               "• 📋 Revisar tu esquema de vacunación\n\n" .
-               "¿Con qué te ayudo hoy?";
+               "• 💉 Vacunas pendientes o aplicadas\n" .
+               "• 📋 Tu esquema de vacunación personalizado\n" .
+               "• 🩺 Recomendaciones según tus condiciones de salud\n" .
+               "• 🏥 Dónde aplicarte vacunas\n" .
+               "• 📅 Recordatorios de vacunación" .
+               $extra .
+               "\n\n¿Con qué te ayudo hoy?";
     }
 
     private function respuestaVacunasPendientes(string $nombre): string
     {
-        if (empty($this->vacunasPendientes)) {
-            $recomendadas = $this->vacunasSegunEdad();
-            return "¡Hola, {$nombre}! No tienes vacunas registradas como pendientes en el sistema. 🎉\n\n" .
-                   "Sin embargo, según tu edad ({$this->edad} años), te recomiendo verificar con tu médico:\n" .
-                   $this->formatearLista($recomendadas) .
-                   "\n¿Te gustaría que te recuerde cuándo aplicarlas?";
+        $this->actualizarContexto('ultimo_tema', 'vacunas_pendientes');
+
+        // Unir nombres ya vacunados (historial + encuesta)
+        $yaVacunado = collect()
+            ->merge($this->vacunasAplicadas->pluck('nombre'))
+            ->merge($this->vacunasEncuesta->pluck('nombre'))
+            ->filter()                                          // elimina null, '', false
+            ->map(fn($n) => $this->normalizar((string) $n))
+            ->unique()
+            ->toArray();
+
+        $recomendadas = $this->vacunasRecomendadasSegunPerfil();
+        $pendientes   = array_values(array_filter(
+            $recomendadas,
+            fn($v) => !in_array($this->normalizar($v['nombre']), $yaVacunado)
+        ));
+
+        if (empty($pendientes)) {
+            return "¡Excelentes noticias, **{$nombre}**! 🎉 Según tu historial y encuesta, " .
+                   "tienes al día las vacunas recomendadas para tu perfil ({$this->edad} años).\n\n" .
+                   "Te recomiendo confirmar con tu médico periódicamente. ¿Necesitas algo más?";
         }
 
-        $lista = $this->formatearLista(
-            array_column($this->vacunasPendientes, 'nombre_vacuna')
-        );
+        $lista = implode("\n", array_map(
+            fn($v) => "• **{$v['nombre']}** — {$v['razon']}",
+            $pendientes
+        ));
 
-        $rec = $this->conversacion->ultima_recomendacion ?? '';
-        $this->actualizarContexto('ultima_recomendacion', implode(', ', array_column($this->vacunasPendientes, 'nombre_vacuna')));
+        $this->actualizarContexto('ultima_recomendacion', implode(', ', array_column($pendientes, 'nombre')));
 
-        return "Según tu historial, {$nombre}, tienes las siguientes vacunas pendientes:\n\n" .
+        return "Según tu perfil, **{$nombre}** ({$this->edad} años), estas vacunas podrían estar pendientes:\n\n" .
                $lista .
-               "\n¿Te gustaría saber dónde puedes aplicártelas o que te programe un recordatorio?";
+               "\n\n¿Te gustaría saber dónde aplicártelas o programar un recordatorio?";
     }
 
     private function respuestaVacunasAplicadas(string $nombre): string
     {
-        if (empty($this->vacunasAplicadas)) {
-            return "Hola, {$nombre}. Aún no tienes vacunas registradas como aplicadas en tu historial. " .
-                   "Puedes agregarlas desde la sección **Mi Control**. ¿Te puedo ayudar con algo más?";
+        $this->actualizarContexto('ultimo_tema', 'vacunas_aplicadas');
+
+        if ($this->vacunasAplicadas->isEmpty() && $this->vacunasEncuesta->isEmpty()) {
+            return "Hola, **{$nombre}**. Aún no tienes vacunas registradas en tu historial.\n\n" .
+                   "Puedes agregarlas desde **Mi Control**. ¿Te ayudo con algo más?";
         }
 
-        $lista = $this->formatearLista(
-            array_map(function ($v) {
-                $fecha = isset($v['fecha_aplicacion'])
-                    ? ' (aplicada el ' . date('d/m/Y', strtotime($v['fecha_aplicacion'])) . ')'
-                    : '';
-                return $v['nombre_vacuna'] . $fecha;
-            }, $this->vacunasAplicadas)
-        );
+        $respuesta = "Aquí está tu registro de vacunación, **{$nombre}**:\n\n";
 
-        return "¡Muy bien, {$nombre}! Estas son las vacunas que tienes registradas como aplicadas:\n\n" .
+        if ($this->vacunasAplicadas->isNotEmpty()) {
+            $respuesta .= "💉 **Vacunas aplicadas (historial):**\n";
+            foreach ($this->vacunasAplicadas as $v) {
+                $fecha     = $v->fecha_aplicacion ? $v->fecha_aplicacion->format('d/m/Y') : 'sin fecha';
+                $lugar     = $v->lugar ? " en {$v->lugar}" : '';
+                $respuesta .= "• **{$v->nombre}** — {$v->dosis}{$lugar} ({$fecha})\n";
+            }
+        }
+
+        if ($this->vacunasEncuesta->isNotEmpty()) {
+            $respuesta .= "\n📋 **Vacunas reportadas en tu encuesta inicial:**\n";
+            foreach ($this->vacunasEncuesta as $v) {
+                $respuesta .= "• {$v->nombre}\n";
+            }
+        }
+
+        return $respuesta . "\n¿Quieres revisar qué vacunas podrían faltarte?";
+    }
+
+    private function respuestaCondiciones(string $nombre): string
+    {
+        $this->actualizarContexto('ultimo_tema', 'condiciones');
+
+        if ($this->condiciones->isEmpty() && !$this->otraCondicion) {
+            return "No tengo condiciones médicas registradas en tu perfil, **{$nombre}**.\n\n" .
+                   "Si tienes alguna condición crónica, puedes actualizarla en tu encuesta de salud " .
+                   "para recibir recomendaciones más precisas.";
+        }
+
+        $respuesta = "Condiciones de salud registradas en tu perfil, **{$nombre}**:\n\n";
+
+        foreach ($this->condiciones as $c) {
+            $respuesta .= "• **{$c->nombre}**";
+            if ($c->descripcion) $respuesta .= " — {$c->descripcion}";
+            $respuesta .= "\n";
+        }
+
+        if ($this->otraCondicion) {
+            $respuesta .= "• {$this->otraCondicion} *(condición adicional)*\n";
+        }
+
+        $recs = $this->recomendacionesPorCondicion();
+        if (!empty($recs)) {
+            $respuesta .= "\n🛡️ **Recomendaciones especiales para ti:**\n";
+            foreach ($recs as $rec) {
+                $respuesta .= "• {$rec}\n";
+            }
+        }
+
+        return $respuesta . "\n¿Quieres más información sobre alguna de estas recomendaciones?";
+    }
+
+    private function respuestaCatalogo(string $nombre): string
+    {
+        if ($this->todasLasVacunas->isEmpty()) {
+            return "El catálogo de vacunas aún no tiene registros, **{$nombre}**. " .
+                   "Consulta con tu médico o visita el MINSAL.";
+        }
+
+        $lista = $this->todasLasVacunas->map(
+            fn($v) => "• **{$v->nombre}**" . ($v->descripcion ? " — {$v->descripcion}" : '')
+        )->join("\n");
+
+        return "Catálogo de vacunas disponibles en el sistema, **{$nombre}**:\n\n" .
                $lista .
-               "\n¡Sigue cuidando tu salud! ¿Necesitas revisar las que te faltan?";
+               "\n\n¿Quieres información detallada sobre alguna en particular?";
     }
 
     private function respuestaRecordatorio(string $nombre): string
     {
-        $pendientes = array_column($this->vacunasPendientes, 'nombre_vacuna');
+        $this->actualizarContexto('ultimo_tema', 'recordatorios');
+
+        $pendientes = array_column($this->vacunasRecomendadasSegunPerfil(), 'nombre');
 
         if (empty($pendientes)) {
-            return "No tienes vacunas pendientes registradas, {$nombre}. Puedes crear recordatorios " .
-                   "desde la sección **Recordatorios** para vacunas anuales como la Influenza. ¿Te ayudo con algo más?";
+            return "No tienes vacunas pendientes registradas, **{$nombre}**. " .
+                   "Aún así puedes crear recordatorios desde la sección **Recordatorios**. ¿Te ayudo con algo más?";
         }
 
-        $lista = $this->formatearLista($pendientes);
+        $lista = implode("\n", array_map(fn($v) => "• {$v}", $pendientes));
 
-        return "Claro, {$nombre}. Puedo ayudarte a recordar tus vacunas pendientes:\n\n" .
+        return "Claro, **{$nombre}**. Puedo ayudarte a recordar:\n\n" .
                $lista .
-               "\nPuedes gestionar tus recordatorios desde la sección **Recordatorios** " .
-               "en el menú lateral. Ahí podrás elegir la fecha y recibir una notificación. ¿Deseas hacer algo más?";
+               "\n\nVe a la sección **Recordatorios** en el menú para configurar fechas y alertas. ¿Deseas hacer algo más?";
     }
 
     private function respuestaLugar(string $nombre, ?string $vacunaRef): string
     {
-        // Resolución de contexto: si no se detectó vacuna, usar la del contexto
-        $vacuna = $vacunaRef ?? $this->conversacion->ultima_vacuna;
-        $mencion = $vacuna ? $this->nombreAmigableVacuna($vacuna) : 'esa vacuna';
+        $vacuna  = $vacunaRef ?? $this->conversacion->ultima_vacuna;
+        $mencion = $vacuna ? "**{$this->nombreAmigable($vacuna)}**" : 'esa vacuna';
+        $lugar   = $this->municipio ? " en **{$this->municipio}**" : '';
 
-        $depto = $this->user->departamento ?? null;
-        $deptoTexto = $depto ? " en **{$depto}**" : '';
-
-        return "Para aplicarte {$mencion}{$deptoTexto}, puedes acudir a:\n\n" .
-               "• 🏥 Las **Unidades de Salud** del Ministerio de Salud (MINSAL)\n" .
-               "• 🏨 **Hospitales Nacionales** más cercanos a tu domicilio\n" .
-               "• 💊 Clínicas y farmacias autorizadas con servicios de vacunación\n\n" .
-               "Te recomiendo llamar antes para confirmar disponibilidad. " .
-               "¿Necesitas información sobre alguna vacuna en específico?";
+        return "Para aplicarte {$mencion}{$lugar}, puedes acudir a:\n\n" .
+               "• 🏥 **Unidades de Salud del MINSAL** más cercana\n" .
+               "• 🏨 **Hospitales Nacionales** de tu departamento\n" .
+               "• 💊 **Farmacias y clínicas autorizadas** con servicio de vacunación\n\n" .
+               "Te recomiendo llamar antes para confirmar disponibilidad. ¿Necesitas información sobre otra vacuna?";
     }
 
     private function respuestaInformacion(string $nombre, ?string $vacunaRef): string
     {
-        $vacuna = $vacunaRef ?? $this->conversacion->ultima_vacuna;
+        $clave = $vacunaRef ?? $this->conversacion->ultima_vacuna;
 
-        if (!$vacuna) {
-            return "Con gusto te explico, {$nombre}. ¿Sobre qué vacuna quieres información? " .
-                   "Por ejemplo: Influenza, Hepatitis B, VPH, Tétanos, Neumococo...";
+        if ($clave) {
+            // Buscar primero en el catálogo real de la BD
+            $vacunaDb = $this->todasLasVacunas->first(
+                fn($v) => $this->normalizar($v->nombre) === $clave
+                       || str_contains($this->normalizar($v->nombre), $clave)
+            );
+
+            if ($vacunaDb && $vacunaDb->descripcion) {
+                return "Información sobre **{$vacunaDb->nombre}**:\n\n" .
+                       $vacunaDb->descripcion . "\n\n¿Tienes alguna otra pregunta?";
+            }
         }
 
-        $info = $this->infoVacuna($vacuna);
-        return "Aquí tienes información sobre **{$this->nombreAmigableVacuna($vacuna)}**:\n\n" .
-               $info . "\n\n¿Tienes alguna otra pregunta?";
+        if (!$clave) {
+            return "Con gusto te explico, **{$nombre}**. ¿Sobre qué vacuna quieres información?\n\n" .
+                   "Escribe **\"catálogo\"** para ver todas las vacunas disponibles.";
+        }
+
+        return "Información sobre **{$this->nombreAmigable($clave)}**:\n\n" .
+               $this->infoGeneralVacuna($clave) . "\n\n¿Tienes alguna otra pregunta?";
     }
 
     private function respuestaEsquema(string $nombre): string
     {
-        $vacunas = $this->vacunasSegunEdad();
+        $this->actualizarContexto('ultimo_tema', 'esquema');
 
-        return "Tu esquema de vacunación recomendado, {$nombre} ({$this->edad} años):\n\n" .
-               $this->formatearLista($vacunas) .
-               "\n📋 Recuerda que este esquema es orientativo. Consulta siempre con tu médico " .
-               "para un plan personalizado. ¿Te ayudo con algo más?";
+        $recomendadas = $this->vacunasRecomendadasSegunPerfil();
+        $lista = implode("\n", array_map(fn($v) => "• **{$v['nombre']}** — {$v['razon']}", $recomendadas));
+
+        $condText = $this->condiciones->isNotEmpty()
+            ? "\n⚠️ Considerando tus condiciones: **" . $this->condiciones->pluck('nombre')->join(', ') . "**\n"
+            : '';
+
+        return "Tu esquema de vacunación recomendado, **{$nombre}** ({$this->edad} años):\n{$condText}\n" .
+               $lista .
+               "\n\n📋 Consulta siempre con tu médico para un plan personalizado.";
     }
 
     private function respuestaRecomendaciones(string $nombre): string
     {
-        $recomendadas = $this->vacunasSegunEdad();
+        $this->actualizarContexto('ultimo_tema', 'recomendaciones');
 
-        $this->actualizarContexto('ultima_recomendacion', implode(', ', $recomendadas));
+        $recomendadas = $this->vacunasRecomendadasSegunPerfil();
+        $lista = implode("\n", array_map(fn($v) => "• **{$v['nombre']}** — {$v['razon']}", $recomendadas));
 
-        return "Basándome en tu perfil, {$nombre} ({$this->edad} años, género: {$this->user->genero}), " .
-               "estas son mis recomendaciones preventivas:\n\n" .
-               "💉 **Vacunas recomendadas:**\n" .
-               $this->formatearLista($recomendadas) .
-               "\n🛡️ **Consejos adicionales:**\n" .
+        $condText = '';
+        if ($this->condiciones->isNotEmpty()) {
+            $condText = "\n\n🩺 **Por tus condiciones ({$this->condiciones->pluck('nombre')->join(', ')}):**\n";
+            $condText .= implode("\n", array_map(fn($r) => "• {$r}", $this->recomendacionesPorCondicion()));
+        }
+
+        $genText = '';
+        if ($this->normalizar($this->user->genero ?? '') === 'femenino' && $this->edad < 45) {
+            $genText = "\n\n👩 **Para mujeres:** Asegúrate de completar el esquema de **VPH** si aún no lo has hecho.";
+        }
+
+        return "Basándome en tu perfil, **{$nombre}** ({$this->edad} años):\n\n" .
+               "💉 **Vacunas recomendadas:**\n" . $lista .
+               $condText . $genText .
+               "\n\n🛡️ **Consejos generales:**\n" .
                "• Mantén tu carnet de vacunación actualizado\n" .
                "• Lávate las manos frecuentemente\n" .
                "• Consulta a tu médico ante cualquier síntoma\n\n" .
-               "¿Deseas que te ayude a programar algún recordatorio?";
+               "¿Deseas programar algún recordatorio?";
     }
 
     private function respuestaAyuda(string $nombre): string
     {
-        return "Hola, {$nombre}. Aquí tienes todo lo que puedo hacer por ti:\n\n" .
+        return "Hola, **{$nombre}**. Esto es lo que puedo hacer por ti:\n\n" .
                "💉 **Vacunas**\n" .
                "  → \"¿Qué vacunas me faltan?\"\n" .
                "  → \"¿Qué vacunas ya me he puesto?\"\n\n" .
+               "📋 **Catálogo**\n" .
+               "  → \"¿Qué vacunas hay disponibles?\"\n\n" .
+               "🩺 **Mis condiciones**\n" .
+               "  → \"¿Qué condiciones tengo registradas?\"\n\n" .
                "📅 **Recordatorios**\n" .
-               "  → \"Quiero un recordatorio para la influenza\"\n" .
-               "  → \"¿Tengo citas pendientes?\"\n\n" .
+               "  → \"Quiero un recordatorio para la influenza\"\n\n" .
                "🏥 **Lugares**\n" .
-               "  → \"¿Dónde me puedo aplicar la Hepatitis B?\"\n\n" .
-               "📋 **Esquema e información**\n" .
-               "  → \"¿Cuál es mi esquema de vacunación?\"\n" .
-               "  → \"¿Para qué sirve la vacuna del VPH?\"\n\n" .
+               "  → \"¿Dónde me aplico la Hepatitis B?\"\n\n" .
+               "📊 **Esquema**\n" .
+               "  → \"¿Cuál es mi esquema de vacunación?\"\n\n" .
                "Escribe cualquier pregunta y haré lo posible por ayudarte. 😊";
     }
 
     private function respuestaDespedida(string $nombre): string
     {
-        return "¡Hasta pronto, {$nombre}! 👋 Fue un gusto ayudarte. " .
+        return "¡Hasta pronto, **{$nombre}**! 👋 Fue un gusto ayudarte. " .
                "Recuerda mantener tu esquema de vacunación al día. ¡Cuídate mucho! 💙";
     }
 
     private function respuestaContextual(string $nombre): string
     {
-        $ultimoTema = $this->conversacion->ultimo_tema;
-
-        if ($ultimoTema === 'vacunas_pendientes') {
-            return "Si tienes más preguntas sobre tus vacunas pendientes, con gusto te ayudo, {$nombre}. " .
-                   "¿Quieres saber dónde aplicártelas o programar un recordatorio?";
-        }
-
-        if ($ultimoTema === 'recordatorios') {
-            return "Si quieres gestionar tus recordatorios, ve a la sección **Recordatorios** en el menú. " .
-                   "¿Hay algo más en lo que pueda ayudarte, {$nombre}?";
-        }
-
-        return "No estoy seguro de entender tu mensaje, {$nombre}. 😅 " .
-               "Puedes preguntarme sobre:\n" .
-               "• Vacunas pendientes o aplicadas\n" .
-               "• Recordatorios de vacunación\n" .
-               "• Dónde aplicarte vacunas\n" .
-               "• Tu esquema de vacunación\n\n" .
-               "Escribe **\"ayuda\"** para ver todas mis funciones.";
+        return match ($this->conversacion->ultimo_tema) {
+            'vacunas_pendientes' => "¿Tienes más preguntas sobre tus vacunas pendientes, **{$nombre}**? " .
+                                    "Puedo decirte dónde aplicártelas o programar un recordatorio.",
+            'condiciones'        => "Si quieres más información sobre cómo tus condiciones afectan tu vacunación, con gusto te ayudo, **{$nombre}**.",
+            default              => "No estoy seguro de entender tu mensaje, **{$nombre}**. 😅\n\n" .
+                                    "Escribe **\"ayuda\"** para ver todas mis funciones.",
+        };
     }
 
     // ─── Lógica de negocio ────────────────────────────────────────────────────
 
-    /**
-     * Retorna las vacunas recomendadas según la edad del usuario.
-     */
-    private function vacunasSegunEdad(): array
+    private function vacunasRecomendadasSegunPerfil(): array
     {
+        $recomendadas = [];
+        $genero       = $this->normalizar($this->user->genero ?? '');
+
         if ($this->edad < 18) {
-            return [
-                'VPH (Virus del Papiloma Humano) — esquema de 2 dosis',
-                'Tétanos (Td) — refuerzo cada 10 años',
-                'Hepatitis B — si no completaste el esquema',
-                'Influenza — anualmente',
-            ];
+            $recomendadas[] = ['nombre' => 'VPH',         'razon' => 'esquema de 2 dosis para menores de 15 años'];
+            $recomendadas[] = ['nombre' => 'Tétanos',     'razon' => 'refuerzo cada 10 años'];
+            $recomendadas[] = ['nombre' => 'Influenza',   'razon' => 'anualmente'];
+            $recomendadas[] = ['nombre' => 'Hepatitis B', 'razon' => 'si no completaste el esquema de 3 dosis'];
         } elseif ($this->edad <= 59) {
-            return [
-                'Influenza — anualmente (especialmente en temporada)',
-                'Hepatitis B — si no completaste el esquema de 3 dosis',
-                'Tétanos (Td) — refuerzo cada 10 años',
-                'VPH — si eres menor de 26 años y no has completado el esquema',
-            ];
+            $recomendadas[] = ['nombre' => 'Influenza',   'razon' => 'anualmente, especialmente en temporada'];
+            $recomendadas[] = ['nombre' => 'Hepatitis B', 'razon' => 'si no completaste las 3 dosis'];
+            $recomendadas[] = ['nombre' => 'Tétanos',     'razon' => 'refuerzo cada 10 años'];
+            if ($this->edad < 26) {
+                $recomendadas[] = ['nombre' => 'VPH', 'razon' => 'si no completaste el esquema'];
+            }
         } else {
-            return [
-                'Influenza — anualmente (prioritario en adultos mayores)',
-                'Neumococo — 1 o 2 dosis según indicación médica',
-                'Tétanos (Td) — refuerzo cada 10 años',
-                'Herpes Zóster — recomendada a partir de los 60 años',
-            ];
+            $recomendadas[] = ['nombre' => 'Influenza',  'razon' => 'prioritaria en adultos mayores'];
+            $recomendadas[] = ['nombre' => 'Neumococo',  'razon' => '1 o 2 dosis según indicación médica'];
+            $recomendadas[] = ['nombre' => 'Tétanos',    'razon' => 'refuerzo cada 10 años'];
         }
+
+        // Ajustes por condiciones médicas
+        $nombresCondiciones = $this->condiciones->pluck('nombre')->filter()->map(fn($c) => $this->normalizar((string) $c))->toArray();
+        $condicionesRiesgo  = ['diabet', 'asma', 'epoc', 'cardio', 'corazon', 'hipertens', 'renal', 'hepatic', 'inmuno'];
+
+        foreach ($condicionesRiesgo as $cond) {
+            foreach ($nombresCondiciones as $nc) {
+                if (str_contains($nc, $cond)) {
+                    $recomendadas[] = ['nombre' => 'Neumococo', 'razon' => 'recomendada por tu condición de salud registrada'];
+                    $recomendadas[] = ['nombre' => 'Influenza',  'razon' => 'prioritaria dado tu historial de salud'];
+                    break 2;
+                }
+            }
+        }
+
+        // Ajuste por género
+        if (str_contains($genero, 'femenin') && $this->edad < 45) {
+            $yaVPH = collect($recomendadas)->pluck('nombre')->filter()->map(fn($n) => $this->normalizar((string) $n))->contains('vph');
+            if (!$yaVPH) {
+                $recomendadas[] = ['nombre' => 'VPH', 'razon' => 'recomendada para mujeres menores de 45 años'];
+            }
+        }
+
+        // Eliminar duplicados por nombre
+        $vistos = [];
+        return array_values(array_filter($recomendadas, function ($v) use (&$vistos) {
+            if (empty($v['nombre'])) return false;
+            $key = $this->normalizar((string) $v['nombre']);
+            if (in_array($key, $vistos)) return false;
+            $vistos[] = $key;
+            return true;
+        }));
     }
 
-    /**
-     * Retorna información básica de una vacuna específica.
-     */
-    private function infoVacuna(string $clave): string
+    private function recomendacionesPorCondicion(): array
     {
-        $info = [
-            'influenza'   => "La **Influenza** es una vacuna anual que protege contra los virus de la gripe estacional. " .
-                             "Se recomienda especialmente en adultos mayores, embarazadas y personas con enfermedades crónicas. " .
-                             "Cada año se actualiza según las cepas circulantes.",
-            'hepatitis_b' => "La **Hepatitis B** protege contra una infección viral grave del hígado. " .
-                             "El esquema completo es de 3 dosis (0, 1 y 6 meses). " .
-                             "Es muy importante completarlo para lograr protección duradera.",
-            'tetanos'     => "El **Tétanos (Td)** protege contra el tétanos y la difteria. " .
-                             "El refuerzo se aplica cada 10 años. En caso de heridas profundas, " .
-                             "puede aplicarse antes de ese plazo.",
-            'vph'         => "El **VPH (Virus del Papiloma Humano)** protege contra los tipos de VPH " .
-                             "que causan cáncer cervicouterino y otras enfermedades. " .
-                             "El esquema es de 2 dosis en menores de 15 años, o 3 dosis en mayores.",
-            'neumococo'   => "La vacuna contra el **Neumococo** protege frente a infecciones causadas " .
-                             "por Streptococcus pneumoniae, incluyendo neumonía y meningitis. " .
-                             "Es especialmente recomendada en adultos mayores de 65 años.",
-            'covid'       => "Las vacunas contra el **COVID-19** protegen contra formas graves de la enfermedad. " .
-                             "Consulta con tu médico sobre la necesidad de refuerzos según tu historial.",
-        ];
-
-        return $info[$clave] ?? "No tengo información detallada sobre esa vacuna en este momento. " .
-               "Te recomiendo consultar con tu médico o visitar el sitio del MINSAL.";
+        $recs = [];
+        foreach ($this->condiciones as $condicion) {
+            $nombre = $this->normalizar($condicion->nombre);
+            if (str_contains($nombre, 'diabet')) {
+                $recs[] = 'Vacuna contra la **Influenza** anualmente (mayor riesgo de complicaciones)';
+                $recs[] = 'Vacuna contra el **Neumococo** (mayor susceptibilidad a neumonía)';
+            }
+            if (str_contains($nombre, 'asma') || str_contains($nombre, 'epoc') || str_contains($nombre, 'pulmon')) {
+                $recs[] = 'Vacuna contra la **Influenza** es prioritaria en enfermedades respiratorias';
+                $recs[] = 'Vacuna contra el **Neumococo** reduce riesgo de neumonía grave';
+            }
+            if (str_contains($nombre, 'cardiac') || str_contains($nombre, 'corazon') || str_contains($nombre, 'hipertens')) {
+                $recs[] = 'Vacuna contra la **Influenza** reduce riesgo de eventos cardiovasculares';
+            }
+            if (str_contains($nombre, 'inmuno') || str_contains($nombre, 'vih') || str_contains($nombre, 'sida')) {
+                $recs[] = 'Consulta con tu médico: algunas vacunas de **virus vivos** pueden estar contraindicadas';
+            }
+        }
+        return array_unique($recs);
     }
 
-    /**
-     * Convierte la clave interna de la vacuna a un nombre amigable.
-     */
-    private function nombreAmigableVacuna(?string $clave): string
+    // ─── Utilidades ───────────────────────────────────────────────────────────
+
+    private function nombreAmigable(?string $clave): string
     {
-        $nombres = [
+        return match ($clave) {
             'influenza'   => 'la Influenza',
             'hepatitis_b' => 'la Hepatitis B',
             'tetanos'     => 'el Tétanos (Td)',
             'vph'         => 'el VPH',
             'neumococo'   => 'el Neumococo',
             'covid'       => 'el COVID-19',
-        ];
-
-        return $nombres[$clave] ?? 'esa vacuna';
+            default       => $clave ? "la vacuna **{$clave}**" : 'esa vacuna',
+        };
     }
 
-    // ─── Utilidades ───────────────────────────────────────────────────────────
-
-    private function formatearLista(array $items): string
+    private function infoGeneralVacuna(string $clave): string
     {
-        return implode("\n", array_map(fn($i) => "• {$i}", $items));
+        return match ($clave) {
+            'influenza'   => "Protege contra los virus de la gripe estacional. Se actualiza anualmente. Recomendada en embarazadas, adultos mayores y personas con enfermedades crónicas.",
+            'hepatitis_b' => "Protege contra la infección viral del hígado. Esquema de **3 dosis** (0, 1 y 6 meses). Importante completarlo para protección duradera.",
+            'tetanos'     => "Protege contra el tétanos y la difteria. **Refuerzo cada 10 años**. En heridas profundas puede aplicarse antes.",
+            'vph'         => "Protege contra tipos de VPH que causan cáncer cervicouterino. **2 dosis** en menores de 15 años, **3 dosis** en mayores.",
+            'neumococo'   => "Protege frente a neumonía, meningitis y sepsis por Streptococcus pneumoniae. Recomendada en adultos mayores y personas con condiciones crónicas.",
+            'covid'       => "Protege contra formas graves de COVID-19. Consulta con tu médico sobre refuerzos según tu historial.",
+            default       => "No tengo información detallada sobre esa vacuna. Te recomiendo consultar con tu médico o visitar el sitio del MINSAL.",
+        };
     }
 
     private function actualizarContexto(string $campo, string $valor): void
     {
         $this->conversacion->update([$campo => $valor]);
     }
-
-    /**
-     * Carga vacunas aplicadas, pendientes y calcula la edad del usuario.
-     */
-    private function cargarDatosUsuario(): void
-    {
-        // Edad
-        if ($this->user->fecha_nacimiento) {
-            $this->edad = \Carbon\Carbon::parse($this->user->fecha_nacimiento)->age;
-        }
-
-        // Historial de vacunación (ajusta las relaciones según tu esquema real)
-        if (method_exists($this->user, 'vacunasAplicadas')) {
-            $this->vacunasAplicadas = $this->user->vacunasAplicadas()
-                ->select('nombre_vacuna', 'fecha_aplicacion')
-                ->get()
-                ->toArray();
-        }
-
-        if (method_exists($this->user, 'vacunasPendientes')) {
-            $this->vacunasPendientes = $this->user->vacunasPendientes()
-                ->select('nombre_vacuna')
-                ->get()
-                ->toArray();
-        }
-    }
-    
 }

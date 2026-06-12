@@ -2,13 +2,27 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class CondicionMedica extends Model
 {
-    protected $table = 'condiciones_medicas';
+    use HasFactory;
 
-    protected $fillable = [
-        'nombre'
-    ];
+    protected $table      = 'condiciones_medicas';
+    protected $primaryKey = 'id_condicion';
+
+    protected $fillable = ['nombre', 'descripcion'];
+
+    // ─── Relaciones ───────────────────────────────────────────────────────────
+
+    public function encuestas()
+    {
+        return $this->belongsToMany(
+            EncuestaSalud::class,
+            'encuesta_condiciones',
+            'condicion_id',
+            'encuesta_id'
+        );
+    }
 }
