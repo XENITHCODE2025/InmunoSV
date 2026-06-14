@@ -95,9 +95,21 @@ Route::middleware('auth')->group(function () {
         return view('Notificacion');
     });
 
-    Route::get('/recordatorios', function () {
-        return view('Recordatorios');
-    });
+
+    Route::get(
+        '/recordatorios',
+        [HistorialController::class, 'recordatorios']
+    );
+
+    Route::put(
+        '/vacuna/completar/{id}',
+        [VacunaController::class, 'completar']
+    )->name('vacuna.completar');
+
+    Route::put(
+        '/vacuna/{id}/completar',
+        [HistorialController::class, 'completarVacuna']
+    )->name('vacuna.completar');
 
     // Municipalidad
     Route::get('/muni', function () {

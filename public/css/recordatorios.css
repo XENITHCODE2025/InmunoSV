@@ -27,22 +27,18 @@
     --rojo-error: #dc2626;
     --naranja: #f59e0b;
     --naranja-suave: #fffbeb;
-
     --font-titulo: 'Poppins', sans-serif;
     --font-cuerpo: 'Open Sans', sans-serif;
-
     --texto-base: 1rem;
     --texto-grande: 1.125rem;
     --texto-pequeno: 0.875rem;
     --texto-xs: 0.8125rem;
-
     --espaciado-xs: 0.5rem;
     --espaciado-sm: 0.75rem;
     --espaciado-md: 1rem;
     --espaciado-lg: 1.25rem;
     --espaciado-xl: 1.5rem;
     --espaciado-xxl: 2rem;
-
     --radio-sm: 8px;
     --radio-md: 12px;
     --radio-lg: 16px;
@@ -66,6 +62,7 @@ body {
 .hidden {
     display: none !important;
 }
+
 
 /* ============================================
    SIDEBAR
@@ -93,9 +90,11 @@ body {
     border-bottom: 1px solid #f0f0f0;
 }
 
+
 /* ============================================
    LOGO PEQUEÑO
    ============================================ */
+
 .logo-small {
     width: 32px;
     height: 40px;
@@ -169,6 +168,7 @@ body {
     border-top: 1px solid #f0f0f0;
 }
 
+
 /* ============================================
    OVERLAY MÓVIL
    ============================================ */
@@ -188,6 +188,7 @@ body {
     visibility: visible;
 }
 
+
 /* ============================================
    MAIN CONTENT
    ============================================ */
@@ -197,6 +198,7 @@ body {
     min-height: 100vh;
     padding: var(--espaciado-xxl);
 }
+
 
 /* ============================================
    HEADER MÓVIL
@@ -247,6 +249,7 @@ body {
     justify-content: center;
 }
 
+
 /* ============================================
    HEADER DESKTOP
    ============================================ */
@@ -268,6 +271,7 @@ body {
     font-size: var(--texto-base);
     color: var(--gris-texto);
 }
+
 
 /* ============================================
    STATS SECTION (4 tarjetas)
@@ -354,6 +358,7 @@ body {
     color: var(--gris-medio);
 }
 
+
 /* ============================================
    TABLA SECTION
    ============================================ */
@@ -374,6 +379,7 @@ body {
     padding: var(--espaciado-lg) var(--espaciado-xl);
     border-bottom: 1px solid #f0f0f0;
 }
+
 
 /* ============================================
    TABLA DESKTOP
@@ -424,7 +430,9 @@ body {
     border-bottom: none;
 }
 
+
 /* Celda de vacuna con icono */
+
 .vacuna-cell {
     display: flex;
     align-items: center;
@@ -464,7 +472,9 @@ body {
     color: var(--gris-medio);
 }
 
+
 /* Celda de fecha */
+
 .fecha-cell {
     display: flex;
     align-items: center;
@@ -495,7 +505,9 @@ body {
     color: var(--gris-medio);
 }
 
+
 /* Celda de lugar */
+
 .lugar-cell {
     display: flex;
     align-items: center;
@@ -526,7 +538,9 @@ body {
     color: var(--gris-medio);
 }
 
+
 /* Badges Estado */
+
 .badge-estado {
     display: inline-flex;
     align-items: center;
@@ -554,6 +568,7 @@ body {
     border-radius: 50%;
     background: currentColor;
 }
+
 
 /* ============================================
    CARDS MÓVIL
@@ -604,6 +619,7 @@ body {
     flex-shrink: 0;
 }
 
+
 /* ============================================
    RESPONSIVE
    ============================================ */
@@ -618,51 +634,42 @@ body {
     .sidebar {
         transform: translateX(-100%);
     }
-
     .sidebar.open {
         transform: translateX(0);
     }
-
     .main-content {
         margin-left: 0;
         padding: 0;
     }
-
     .mobile-header {
         display: flex;
     }
-
     .desktop-header {
         padding: var(--espaciado-lg) var(--espaciado-md);
         margin-bottom: var(--espaciado-md);
     }
-
     .page-title {
         font-size: 1.375rem;
     }
-
     .stats-section {
         grid-template-columns: 1fr;
         margin: var(--espaciado-md);
         gap: var(--espaciado-md);
     }
-
     .tabla-section {
         margin: var(--espaciado-md);
     }
-
     .section-title {
         padding: var(--espaciado-md);
     }
-
     .tabla-desktop {
         display: none;
     }
-
     .cards-movil {
         display: flex;
     }
 }
+
 
 /* ============================================
    ACCESIBILIDAD
@@ -680,4 +687,37 @@ body {
 :focus-visible {
     outline: 3px solid var(--verde-salud);
     outline-offset: 2px;
+}
+
+.badge-estado.completado {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge-estado.completado .badge-dot {
+    background: #22c55e;
+}
+
+.btn-check {
+    width: 36px;
+    height: 36px;
+    border: 2px solid #10b981;
+    border-radius: 8px;
+    background: white;
+    color: #10b981;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: .2s;
+}
+
+.btn-check:hover {
+    background: #10b981;
+    color: white;
+    transform: scale(1.05);
+}
+
+.btn-check svg {
+    pointer-events: none;
 }

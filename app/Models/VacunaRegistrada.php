@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class VacunaRegistrada extends Model
 {
     protected $table = 'vacunas_aplicadas';
- 
+    
     protected $fillable = [
         'user_id',
         'vacuna_id',
@@ -16,8 +16,9 @@ class VacunaRegistrada extends Model
         'fecha_aplicacion',
         'dosis',
         'lugar',
+        'estado',
     ];
- 
+
     protected $casts = [
         'fecha_aplicacion' => 'date',
     ];
@@ -34,6 +35,4 @@ class VacunaRegistrada extends Model
             'id_vacuna'
         );
     }
-
-   
 }

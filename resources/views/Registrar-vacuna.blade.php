@@ -144,7 +144,7 @@
                     </div>
 
                     <div class="input-group">
-                        <label for="tipo-vacuna" class="input-label">Tipo de vacuna</label>
+                        <label for="tipo-vacuna" class="input-label">Tipo de vacuna <span class="required-badge">*</span></label>
                         <div class="input-wrapper">
                             <span class="input-icon" aria-hidden="true">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -155,7 +155,7 @@
                                     <circle cx="12" cy="12" r="3" />
                                 </svg>
                             </span>
-                            <select id="tipo-vacuna" name="tipo" class="form-input form-select">
+                            <select id="tipo-vacuna" name="tipo" class="form-input form-select" required>
                                 <option value="" disabled selected>Selecciona el tipo</option>
                                 <option value="preventiva">Preventiva</option>
                                 <option value="obligatoria">Obligatoria</option>
@@ -164,12 +164,15 @@
                                 <option value="gripe">Gripe / Influenza</option>
                                 <option value="otra">Otra</option>
                             </select>
+
                             <span class="select-arrow" aria-hidden="true">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="m6 9 6 6 6-6" />
                                 </svg>
                             </span>
                         </div>
+                        <span class="error-message" id="tipo-error" role="alert"></span>
+
                     </div>
                 </div>
 
@@ -194,7 +197,6 @@
                                 name="fecha"
                                 class="form-input"
                                 required
-                                max=""
                                 aria-describedby="fecha-error">
                         </div>
                         <span class="error-message" id="fecha-error" role="alert"></span>
@@ -216,6 +218,7 @@
                                 </svg>
                             </span>
                             <select id="dosis" name="dosis" class="form-input form-select" required>
+
                                 <option value="" disabled selected>Selecciona la dosis</option>
                                 <option value="1ra">1ra dosis</option>
                                 <option value="2da">2da dosis</option>
@@ -235,7 +238,7 @@
                 </div>
 
                 <div class="input-group input-full">
-                    <label for="lugar" class="input-label">Lugar de aplicación</label>
+                    <label for="lugar" class="input-label">Lugar de aplicación<span class="required-badge">*</span></label>
                     <div class="input-wrapper">
                         <span class="input-icon" aria-hidden="true">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -248,8 +251,11 @@
                             id="lugar"
                             name="lugar"
                             class="form-input"
-                            placeholder="Ej: Hospital Nacional de San Miguel">
+                            placeholder="Ej: Hospital Nacional de San Miguel"
+                            required>
                     </div>
+                    <span class="error-message" id="lugar-error" role="alert"></span>
+
                 </div>
 
                 <div class="form-actions">
@@ -281,8 +287,6 @@
             overlay.classList.toggle('active');
         }
 
-        document.getElementById('fecha-aplicacion').max = new Date().toISOString().split('T')[0];
-
         const form = document.getElementById('vacunaForm');
 
         form.addEventListener('submit', function(e) {
@@ -301,23 +305,19 @@
 
             const fecha = document.getElementById('fecha-aplicacion');
             const fechaError = document.getElementById('fecha-error');
-            const fechaValue = new Date(fecha.value);
-            const hoy = new Date();
-            hoy.setHours(23, 59, 59, 999);
-
             if (!fecha.value) {
-                fechaError.textContent = 'La fecha de aplicación es obligatoria';
+                fechaError.textContent =
+                    'La fecha de aplicación es obligatoria';
+
                 fecha.classList.add('input-error');
                 isValid = false;
-            } else if (fechaValue > hoy) {
-                fechaError.textContent = 'La fecha no puede ser futura';
-                fecha.classList.add('input-error');
-                isValid = false;
+
             } else {
+
                 fechaError.textContent = '';
                 fecha.classList.remove('input-error');
-            }
 
+            }
             const dosis = document.getElementById('dosis');
             const dosisError = document.getElementById('dosis-error');
             if (!dosis.value) {
@@ -327,6 +327,38 @@
             } else {
                 dosisError.textContent = '';
                 dosis.classList.remove('input-error');
+            }
+
+            const tipo = document.getElementById('tipo-vacuna');
+            const tipoError = document.getElementById('tipo-error');
+
+            if (!tipo.value) {
+
+                tipoError.textContent = 'Debes seleccionar un tipo de vacuna';
+                tipo.classList.add('input-error');
+                isValid = false;
+
+            } else {
+
+                tipoError.textContent = '';
+                tipo.classList.remove('input-error');
+
+            }
+
+            const lugar = document.getElementById('lugar');
+            const lugarError = document.getElementById('lugar-error');
+
+            if (!lugar.value.trim()) {
+
+                lugarError.textContent = 'El lugar de aplicación es obligatorio';
+                lugar.classList.add('input-error');
+                isValid = false;
+
+            } else {
+
+                lugarError.textContent = '';
+                lugar.classList.remove('input-error');
+
             }
 
             if (!isValid) {
@@ -348,6 +380,20 @@
         document.getElementById('dosis').addEventListener('change', function() {
             this.classList.remove('input-error');
             document.getElementById('dosis-error').textContent = '';
+        });
+
+        document.getElementById('tipo-vacuna').addEventListener('change', function() {
+
+            this.classList.remove('input-error');
+            document.getElementById('tipo-error').textContent = '';
+
+        });
+
+        document.getElementById('lugar').addEventListener('input', function() {
+
+            this.classList.remove('input-error');
+            document.getElementById('lugar-error').textContent = '';
+
         });
     </script>
 </body>

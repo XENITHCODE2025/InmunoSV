@@ -12,10 +12,14 @@ class VacunaController extends Controller
     {
         $request->validate([
             'vacuna_id' => 'required',
-            'fecha' => 'required|date|before_or_equal:today',
+            'fecha' => 'required|date',
             'dosis' => 'required',
-            'lugar' => 'nullable|string|max:255',
+            'lugar' => 'required|string|max:255',
         ]);
+
+        $estado = $request->fecha > now()->toDateString()
+            ? 'pendiente'
+            : 'completado';
 
         VacunaRegistrada::create([
             'user_id' => Auth::id(),
@@ -24,9 +28,26 @@ class VacunaController extends Controller
             'fecha_aplicacion' => $request->fecha,
             'dosis' => $request->dosis,
             'lugar' => $request->lugar,
+            'estado' => $estado,
         ]);
 
         return redirect('/mi-historial')
             ->with('success', 'Vacuna registrada correctamente');
+    }
+
+    public function completar($id)
+    {
+        $vacuna = VacunaRegistrada::findOrFail($id);
+
+        $vacuna->update([
+            'estado' => 'completado'
+        ]);
+
+        return redirect()
+            ->back()
+            ->with(
+                'success',
+                'Vacuna marcada como completada'
+            );
     }
 }
