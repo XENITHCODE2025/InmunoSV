@@ -127,6 +127,12 @@ Route::middleware('auth')->group(function () {
 | El token CSRF se valida automáticamente en las solicitudes POST.
 */
 
+use App\Http\Controllers\PerfilController;
+
+Route::post('/perfil/foto', [PerfilController::class, 'subirFoto'])
+    ->middleware('auth')
+    ->name('perfil.foto');
+
 Route::middleware(['auth'])->group(function () {
 
     // ── Vista principal del chatbot ─────────────────────────────────────────

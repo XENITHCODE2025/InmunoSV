@@ -100,19 +100,68 @@
         <div class="perfil-content">
             <div class="avatar-card">
                 <div class="avatar-wrapper">
-                    <div class="avatar-large">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#3933B2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
-                        </svg>
-                    </div>
-                    <button class="btn-camara" aria-label="Cambiar foto de perfil">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                            <circle cx="12" cy="13" r="4"/>
-                        </svg>
-                    </button>
-                </div>
+
+    <div class="avatar-large">
+
+        @if(auth()->user()->foto)
+
+            <img
+                src="{{ asset(auth()->user()->foto) }}"
+                alt="Foto de perfil"
+                class="foto-perfil">
+
+        @else
+
+            <svg width="64" height="64" viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="#3933B2"
+                 stroke-width="1.5"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
+
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+
+            </svg>
+
+        @endif
+
+    </div>
+
+    <form id="formFoto"
+          action="{{ route('perfil.foto') }}"
+          method="POST"
+          enctype="multipart/form-data">
+
+        @csrf
+
+        <input
+            type="file"
+            name="foto"
+            id="inputFoto"
+            accept="image/*"
+            style="display:none;">
+    </form>
+
+    <button type="button"
+            class="btn-camara"
+            aria-label="Cambiar foto de perfil">
+
+        <svg width="16"
+             height="16"
+             viewBox="0 0 24 24"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2">
+
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+
+        </svg>
+
+    </button>
+
+</div>
             </div>
 
             <div class="info-card">
@@ -211,6 +260,38 @@
             sidebar.classList.toggle('open');
             overlay.classList.toggle('active');
         }
+
+        function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    const btnCamara = document.querySelector('.btn-camara');
+    const inputFoto = document.getElementById('inputFoto');
+
+    if(btnCamara && inputFoto){
+
+        btnCamara.addEventListener('click', function() {
+            inputFoto.click();
+        });
+
+        inputFoto.addEventListener('change', function() {
+
+            if(this.files.length > 0){
+                document.getElementById('formFoto').submit();
+            }
+
+        });
+
+    }
+
+});
     </script>
+    
 </body>
 </html>
