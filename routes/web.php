@@ -50,7 +50,7 @@ Route::post('/logout', [LoginController::class, 'logout'])
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\PreventBackHistory::class])->group(function () {
 
     // Encuesta inicial
     Route::get('/bienvenida', [EncuestaSaludController::class, 'index'])

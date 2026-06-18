@@ -25,7 +25,7 @@
             <button class="btn-login" onclick="location.href='{{ url('/login') }}'">
                 <!-- Icono usuario login -->
                 <img src="{{ asset('img/icons/user-login.png') }}" alt="Login">
-                Iniciar Sección
+                Iniciar Sesión
             </button>
             <!-- REDIRECCIÓN CORREGIDA: Apunta a la ruta real /registro de Laravel -->
             <button class="btn-register" onclick="location.href='{{ url('/registro') }}'">Registrarme</button>
